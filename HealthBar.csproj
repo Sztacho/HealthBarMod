@@ -18,11 +18,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
 </ItemGroup>
-
-<ItemGroup>
-  <Content Include="modicon.png">
+  <ItemGroup>
+    <Content Include="modicon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-</ItemGroup>
-
+    </Content>
+  </ItemGroup>
 </Project>
