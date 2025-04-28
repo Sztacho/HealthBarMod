@@ -6,7 +6,9 @@
         "StachoPL"
     ],
     "description": "Shows a clean, distance-scaled health bar above mobs and players.",
-    "version": "1.0.1",
+    "version": "1.0.2",
+    "website": "https://github.com/Sztacho/HealthBarMod",
+    "side": "client",
     "dependencies": {
         "game": ""
     }
