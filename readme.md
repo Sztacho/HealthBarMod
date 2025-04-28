@@ -1,6 +1,6 @@
 ﻿
 # HealthBar Mod for Vintage Story
-![HealthBarMod](https://github.com/Sztacho/HealthBarMod/blob/1.0.0/modicon.png)
+![HealthBarMod](https://github.com/Sztacho/HealthBarMod/blob/master/modicon.png)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 A lightweight, client-side mod that shows every creature’s (and optionally players’) health in a clean, game-style bar above the head.  
@@ -10,20 +10,21 @@ The bar scales with distance, changes colour as HP drops, animates smoothly when
 
 ## Features
 
+
 | Feature | Details |
 |---------|---------|
-| **Clean pixel-art bar** | Stone-frame border, dark backdrop, colour-shifting fill (green → yellow → red). |
-| **Distance scaling** | Bar, frame **and text** scale down the farther you stand, avoiding HUD clutter. |
-| **Smooth damage animation** | Fill slides to the new value instead of snapping, for a polished look. |
-| **Configurable thresholds & colours** | Set low/mid/full HP colours and threshold percentages. |
-| **Fade-in / fade-out** | The bar appears only when you look at the mob (or on damage), then fades away. |
-| **Optional player bar** | Can show HP over other players (disabled by default). |
-| **Tiny footprint** | Pure client code – no world data, no network traffic, safe to add or remove anytime. |
+| **Stylish pixel bar** | Stone-frame border, dark backdrop, colour-shifting fill (green → yellow → red). |
+| **Distance-aware scaling** | Bar **and text** shrink as you step back, keeping the HUD tidy. |
+| **Smooth damage animation** | Fill slides to the new value instead of snapping. |
+| **Fade-in / fade-out** | Appears only when you target the entity, then fades out. |
+| **Configurable everything** | Colours, thresholds, size, fade speed, vertical offset… all in JSON. |
+| **Tiny footprint** | Pure client mod. Safe to add or remove at any time. |
 
----
 
 ## Screenshots
-*(insert your in-game screenshots here – the icon serve only as branding)*
+![HealthBarModScreen1](https://github.com/Sztacho/HealthBarMod/blob/master/ScreenShots/screen1.png)
+![HealthBarModScreen2](https://github.com/Sztacho/HealthBarMod/blob/master/ScreenShots/screen2.png)
+![HealthBarModScreen3](https://github.com/Sztacho/HealthBarMod/blob/master/ScreenShots/screen3.png)
 
 ---
 
@@ -37,23 +38,24 @@ The bar scales with distance, changes colour as HP drops, animates smoothly when
 
 ---
 
-## Configuration
+## Configuration options
 
-After first launch a file `HealthBarSettings.json` appears in `VintagestoryData/ModConfig/`.  
-Open it in any text editor; example defaults:
+Edit the file **`VintagestoryData/ModConfig/HealthBarSettings.json`**.  
+Every entry is optional – delete a line to restore its default value.
 
-```jsonc
-{
-  "BarWidth":           100,
-  "BarHeight":          12,
-  "VerticalOffset":     20,      // pixels above mob head
-  "FadeInSpeed":        0.15,    // seconds
-  "FadeOutSpeed":       0.25,
-  "LowHealthColor":     "#c62828",
-  "MidHealthColor":     "#ffd54f",
-  "FullHealthColor":    "#66bb6a",
-  "LowHealthThreshold": 0.25,    // ≤ 25 % = red
-  "MidHealthThreshold": 0.60,    // ≤ 60 % = yellow
-  "FrameColor":         "#cccccc",
-  "ShowOnPlayers":      false
-}
+| Key | Default | Description |
+|-----|:-------:|-------------|
+| `BarWidth` | **66** | Total width of the bar (pixels on your screen). |
+| `BarHeight` | **6.6** | Total height of the bar (pixels). |
+| `VerticalOffset` | **22** | Vertical distance (pixels) above the mob’s head. Increase for tall entities. |
+| `FadeInSpeed` | **0.3** | Seconds it takes to fully fade *in* after the bar becomes visible. |
+| `FadeOutSpeed` | **0.5** | Seconds it takes to fade *out* after you stop looking / the timeout expires. |
+| `LowHealthThreshold` | **0.25** | ≤ 25 % HP → bar switches to **`LowHealthColor`**. |
+| `MidHealthThreshold` | **0.60** | ≤ 60 % HP (and > 25 %) → bar switches to **`MidHealthColor`**. |
+| `LowHealthColor` | **"#FF4444"** | Hex colour when HP ≤ `LowHealthThreshold`. |
+| `MidHealthColor` | **"#FFCC00"** | Hex colour when HP ≤ `MidHealthThreshold` but > `LowHealthThreshold`. |
+| `FullHealthColor` | **"#44FF44"** | Hex colour when HP > `MidHealthThreshold`. |
+| `FrameColor` | **"#CCCCCC"** | Hex colour of the stone-style border around the bar. |
+
+**Tip:** Use any 6-digit hex (e.g. `#AABBCC`). The mod parses it automatically.  
+
