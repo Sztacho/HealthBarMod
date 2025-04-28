@@ -1,0 +1,15 @@
+﻿{
+  "BarWidth": 90.0,
+  "BarHeight": 8.0,
+  "VerticalOffset": 25.0,
+
+  "FadeInSpeed": 0.3,
+  "FadeOutSpeed": 0.5,
+
+  "LowHealthThreshold": 0.25,
+  "MidHealthThreshold": 0.6,
+
+  "LowHealthColor": "#E53935",
+  "MidHealthColor": "#FFB300",
+  "FullHealthColor": "#43A047"
+}
