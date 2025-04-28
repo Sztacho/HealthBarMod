@@ -11,5 +11,6 @@
 
   "LowHealthColor": "#E53935",
   "MidHealthColor": "#FFB300",
-  "FullHealthColor": "#43A047"
+  "FullHealthColor": "#43A047",
+  "FrameColor":      "#cccccc"
 }

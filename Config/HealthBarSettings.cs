@@ -47,6 +47,8 @@ namespace HealthBar.Config
 
         /// <summary>Kolor paska przy pełnym zdrowiu (hex).</summary>
         public string FullHealthColor { get; set; } = "#44FF44";
+        
+        public string FrameColor { get; set; } = "#cccccc";
 
         #endregion
     }

@@ -1,5 +1,4 @@
-﻿using HealthBar.Config;
-using HealthBar.Rendering;
+﻿using HealthBar.Rendering;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common.Entities;
 
