@@ -4,50 +4,51 @@ using System;
 namespace HealthBar.Config
 {
     /// <summary>
-    /// Konfigurowalne parametry paska zdrowia.
+    /// Configure the health bar.
     /// </summary>
     public class HealthBarSettings
     {
-        #region Rozmiar i pozycja
+        #region Size and position
 
-        /// <summary>Szerokość paska w pikselach.</summary>
+        /// <summary>Width as pixels</summary>
         public float BarWidth { get; set; } = 66f;
 
-        /// <summary>Wysokość paska w pikselach.</summary>
+        /// <summary>Height as pixels</summary>
         public float BarHeight { get; set; } = 6.6f;
 
-        /// <summary>Offset pionowy względem pozycji encji.</summary>
+        /// <summary>Offset</summary>
         public float VerticalOffset { get; set; } = 22f;
 
         #endregion
 
-        #region Animacje fade
+        #region Animation
 
-        /// <summary>Czas (w sekundach) na pełne wyświetlenie paska.</summary>
+        /// <summary>Time (in seconds) for the bar to be fully displayed.</summary>
         public float FadeInSpeed { get; set; } = 0.3f;
 
-        /// <summary>Czas (w sekundach) na całkowite zanikanie paska.</summary>
+        /// <summary>Time (in seconds) for the bar to fade completely.</summary>
         public float FadeOutSpeed { get; set; } = 0.5f;
 
         #endregion
 
-        #region Progi i kolory
+        #region Thresholds and colors
 
-        /// <summary>Próg procentowy, poniżej którego używany jest kolor niskiego zdrowia.</summary>
+        /// <summary>The percentage threshold below which a low health color is used.</summary>
         public float LowHealthThreshold { get; set; } = 0.25f;
 
-        /// <summary>Próg procentowy, poniżej którego używany jest kolor średniego zdrowia.</summary>
+        /// <summary>The percentage threshold below which the color of average health is used.</summary>
         public float MidHealthThreshold { get; set; } = 0.6f;
 
-        /// <summary>Kolor paska przy niskim zdrowiu (hex).</summary>
+        /// <summary>Bar color at low health (hex).</summary>
         public string LowHealthColor { get; set; } = "#FF4444";
 
-        /// <summary>Kolor paska przy średnim zdrowiu (hex).</summary>
+        /// <summary>Bar color at average health (hex).</summary>
         public string MidHealthColor { get; set; } = "#FFCC00";
 
-        /// <summary>Kolor paska przy pełnym zdrowiu (hex).</summary>
+        /// <summary>Bar color at full health (hex).</summary>
         public string FullHealthColor { get; set; } = "#44FF44";
         
+        /// <summary>Frame color (hex).</summary>
         public string FrameColor { get; set; } = "#cccccc";
 
         #endregion

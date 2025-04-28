@@ -8,10 +8,10 @@ using Vintagestory.API.Config;
 
 namespace HealthBar.Rendering
 {
-    /// <summary>Pasek zdrowia z ciemnym tłem i niezależną ramką-obrysem.</summary>
+    /// <summary>A health bar with a dark background and an independent frame-outline.</summary>
     public class HealthBarRenderer : IRenderer, IDisposable
     {
-        #region Stałe
+        #region Constante
 
         private const float BaseScaleDivider = 4f;
         private const float ScaleBoost       = 2f;
@@ -23,7 +23,7 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Pola prywatne
+        #region Private Fields
 
         private readonly ICoreClientAPI _api;
         private readonly HealthBarSettings _settings;
@@ -35,8 +35,8 @@ namespace HealthBar.Rendering
 
         private LoadedTexture _healthTextTexture;
         private Vec4f _healthColor = new();
-        private Vec4f _frameColor  = new();
-        private Vec4f _backColor   = new(0, 0, 0, 0.6f);
+        private readonly Vec4f _frameColor  = new();
+        private readonly Vec4f _backColor   = new(0, 0, 0, 0.6f);
 
         private float _opacity;
         private float _displayPct        = 1f;
@@ -44,7 +44,7 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Właściwości
+        #region Parameters
 
         public Entity? TargetEntity { get; set; }
         public bool IsVisible       { get; set; }
@@ -53,7 +53,7 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Konstruktor
+        #region Contructor
 
         public HealthBarRenderer(ICoreClientAPI api, HealthBarSettings settings)
         {
@@ -74,16 +74,16 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Renderowanie
+        #region Rendering
 
         public void OnRenderFrame(float deltaTime, EnumRenderStage stage)
         {
             if (!CanRender()) return;
 
             var node        = TargetEntity!.WatchedAttributes.GetTreeAttribute("health");
-            float curHealth = node?.GetFloat("currenthealth") ?? 0f;
-            float maxHealth = node?.GetFloat("maxhealth")     ?? 1f;
-            float targetPct = Clamp01(curHealth / maxHealth);
+            var curHealth = node?.GetFloat("currenthealth") ?? 0f;
+            var maxHealth = node?.GetFloat("maxhealth")     ?? 1f;
+            var targetPct = Clamp01(curHealth / maxHealth);
 
             if (_justBecameVisible)
             {
@@ -92,7 +92,7 @@ namespace HealthBar.Rendering
             }
             else if (targetPct < _displayPct)
             {
-                float lerpStep  = Clamp01(deltaTime * FillLerpSpeed);
+                var lerpStep  = Clamp01(deltaTime * FillLerpSpeed);
                 _displayPct     = Lerp(_displayPct, targetPct, lerpStep);
             }
             else
@@ -108,20 +108,20 @@ namespace HealthBar.Rendering
             var screen = GetEntityScreenPosition();
             if (screen.Z < 0) return;
 
-            float distance   = Math.Max(1f, (float)screen.Z);
-            float rawScale   = BaseScaleDivider / distance;
-            float finalScale = Math.Max(MinScale, rawScale * ScaleBoost);
+            var distance   = Math.Max(1f, (float)screen.Z);
+            var rawScale   = BaseScaleDivider / distance;
+            var finalScale = Math.Max(MinScale, rawScale * ScaleBoost);
 
-            float w = finalScale * _settings.BarWidth;
-            float h = finalScale * _settings.BarHeight;
-            float x = (float)screen.X - w / 2f;
-            float y = _api.Render.FrameHeight - (float)screen.Y - h - _settings.VerticalOffset;
+            var w = finalScale * _settings.BarWidth;
+            var h = finalScale * _settings.BarHeight;
+            var x = (float)screen.X - w / 2f;
+            var y = _api.Render.FrameHeight - (float)screen.Y - h - _settings.VerticalOffset;
 
             var shader = _api.Render.CurrentActiveShader;
             shader.Uniform("noTexture", 1f);
             shader.UniformMatrix("projectionMatrix", _api.Render.CurrentProjectionMatrix);
 
-            float bp = BorderPx * RuntimeEnv.GUIScale;
+            var bp = BorderPx * RuntimeEnv.GUIScale;
             shader.Uniform("rgbaIn", _frameColor);
             DrawBar(shader, _borderMesh, x - bp, y - bp, w + bp * 2, h + bp * 2);
 
@@ -129,9 +129,9 @@ namespace HealthBar.Rendering
             DrawBar(shader, _backgroundMesh, x, y, w, h);
 
             shader.Uniform("rgbaIn", _healthColor);
-            float fillW   = w * _displayPct;
-            float centerX = x + w / 2f;
-            float newX    = centerX - fillW / 2f;
+            var fillW   = w * _displayPct;
+            var centerX = x + w / 2f;
+            var newX    = centerX - fillW / 2f;
             DrawBar(shader, _healthMesh, newX, y, fillW, h);
 
             DrawHealthText(curHealth, maxHealth, x, y, w, h, finalScale);
@@ -139,22 +139,21 @@ namespace HealthBar.Rendering
 
         private bool CanRender()
         {
-            if (TargetEntity == null) return false;
-            var node = TargetEntity.WatchedAttributes.GetTreeAttribute("health");
+            var node = TargetEntity?.WatchedAttributes.GetTreeAttribute("health");
             if (node == null) return false;
 
-            float curHealth = node.GetFloat("currenthealth");
+            var curHealth = node.GetFloat("currenthealth");
             return curHealth > 0f && (_opacity > 0f || IsVisible);
         }
 
         #endregion
 
-        #region Aktualizacja alpha i koloru HP
+        #region Update opacity and color
 
         private void UpdateOpacity(float dt)
         {
-            bool wasInvisible = _opacity == 0f;
-            float delta       = dt / (IsVisible ? _settings.FadeInSpeed : -_settings.FadeOutSpeed);
+            var wasInvisible = _opacity == 0f;
+            var delta       = dt / (IsVisible ? _settings.FadeInSpeed : -_settings.FadeOutSpeed);
             _opacity          = Clamp01(_opacity + delta);
 
             if (wasInvisible && _opacity > 0f)
@@ -163,7 +162,7 @@ namespace HealthBar.Rendering
 
         private void UpdateHealthColor(float percent)
         {
-            string hex = percent <= _settings.LowHealthThreshold
+            var hex = percent <= _settings.LowHealthThreshold
                 ? _settings.LowHealthColor
                 : percent <= _settings.MidHealthThreshold
                     ? _settings.MidHealthColor
@@ -175,7 +174,7 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Rysowanie jednego mesha
+        #region Draw mesh
 
         private void DrawBar(IShaderProgram shader, MeshRef mesh, float x, float y, float w, float h)
         {
@@ -192,16 +191,16 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Tekst HP  (bez cairo-sharp)
+        #region Draw text
 
         private void DrawHealthText(float current, float max,
                                     float x, float y, float w, float h,
                                     float scale)
         {
-            string txt = $"{MathF.Ceiling(current)} / {MathF.Ceiling(max)}";
+            var txt = $"{MathF.Ceiling(current)} / {MathF.Ceiling(max)}";
 
             var font        = CairoFont.WhiteSmallText();
-            double baseSize = font.UnscaledFontsize;
+            var baseSize = font.UnscaledFontsize;
 
             font.UnscaledFontsize = baseSize * scale;
             font.StrokeWidth      = 2.0 * RuntimeEnv.GUIScale * scale;
@@ -213,10 +212,10 @@ namespace HealthBar.Rendering
             float tw = _healthTextTexture.Width;
             float th = _healthTextTexture.Height;
 
-            float maxTextHeight = h * 0.9f;
+            var maxTextHeight = h * 0.9f;
             if (th > maxTextHeight && th > 0)
             {
-                float ratio            = maxTextHeight / th;
+                var ratio            = maxTextHeight / th;
                 font.UnscaledFontsize *= ratio;
                 font.StrokeWidth      *= ratio;
                 _api.Gui.TextTexture.GenOrUpdateTextTexture(txt, font, ref _healthTextTexture);
@@ -224,10 +223,10 @@ namespace HealthBar.Rendering
                 th = _healthTextTexture.Height;
             }
 
-            float maxTextWidth = w * 0.9f;
+            var maxTextWidth = w * 0.9f;
             if (tw > maxTextWidth && tw > 0)
             {
-                float ratio            = maxTextWidth / tw;
+                var ratio            = maxTextWidth / tw;
                 font.UnscaledFontsize *= ratio;
                 font.StrokeWidth      *= ratio;
                 _api.Gui.TextTexture.GenOrUpdateTextTexture(txt, font, ref _healthTextTexture);
@@ -235,8 +234,8 @@ namespace HealthBar.Rendering
                 th = _healthTextTexture.Height;
             }
 
-            float tx = x + (w - tw) / 2f;
-            float ty = y + (h - th) / 2f;
+            var tx = x + (w - tw) / 2f;
+            var ty = y + (h - th) / 2f;
 
             _api.Render.Render2DTexturePremultipliedAlpha(
                 _healthTextTexture.TextureId,
@@ -255,7 +254,7 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Pozycjonowanie ekranu
+        #region Screen position
 
         private Vec3d GetEntityScreenPosition()
         {
@@ -290,14 +289,18 @@ namespace HealthBar.Rendering
 
         #endregion
 
-        #region Pomocnicze Clamp/Lerp
+        #region Help method Clamp/Lerp
 
         private static float Clamp01(float v)  => v < 0f ? 0f : v > 1f ? 1f : v;
 
         private static float Lerp(float a, float b, float t)
         {
-            if (t < 0f) t = 0f;
-            else if (t > 1f) t = 1f;
+            t = t switch
+            {
+                < 0f => 0f,
+                > 1f => 1f,
+                _ => t
+            };
             return a + (b - a) * t;
         }
 
