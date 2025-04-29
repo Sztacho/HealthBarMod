@@ -1,6 +1,4 @@
 ﻿#nullable enable
-using System;
-
 namespace HealthBar.Config
 {
     /// <summary>
@@ -47,7 +45,7 @@ namespace HealthBar.Config
 
         /// <summary>Bar color at full health (hex).</summary>
         public string FullHealthColor { get; set; } = "#44FF44";
-        
+
         /// <summary>Frame color (hex).</summary>
         public string FrameColor { get; set; } = "#cccccc";
 

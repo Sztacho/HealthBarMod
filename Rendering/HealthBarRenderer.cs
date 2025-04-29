@@ -50,6 +50,8 @@ namespace HealthBar.Rendering
         public bool IsVisible       { get; set; }
         public double RenderOrder   => 0.41;
         public int    RenderRange   => 10;
+        
+        public bool IsFullyInvisible => _opacity <= 0.001f;
 
         #endregion
 
@@ -284,6 +286,7 @@ namespace HealthBar.Rendering
             _api.Render.DeleteMesh(_backgroundMesh);
             _api.Render.DeleteMesh(_healthMesh);
             _api.Event.UnregisterRenderer(this, EnumRenderStage.Ortho);
+            _healthTextTexture?.Dispose();
             GC.SuppressFinalize(this);
         }
 
