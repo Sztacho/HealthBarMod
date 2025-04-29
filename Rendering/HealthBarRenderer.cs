@@ -1,312 +1,221 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using HealthBar.Config;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.MathTools;
-using HealthBar.Config;
 using Vintagestory.API.Config;
+using Vintagestory.API.MathTools;
 
 namespace HealthBar.Rendering
 {
-    /// <summary>A health bar with a dark background and an independent frame-outline.</summary>
-    public class HealthBarRenderer : IRenderer, IDisposable
+    public sealed class HealthBarRenderer : IRenderer, IDisposable
     {
-        #region Constante
-
         private const float BaseScaleDivider = 4f;
-        private const float ScaleBoost       = 2f;
-        private const float MinScale         = 0.7f;
-        private const float ZIndex           = 20f;
+        private const float ScaleBoost = 2f;
+        private const float MinScale = 0.7f;
+        private const float Z = 20f;
 
         private const float FillLerpSpeed = 6f;
-        private const float BorderPx      = 1f;
+        private const float BorderPx = 1f;
 
-        #endregion
+        private readonly ICoreClientAPI _capi;
+        private readonly HealthBarSettings _set;
+        private readonly Matrixf _model = new();
 
-        #region Private Fields
+        private readonly MeshRef _borderM, _backM, _fillM;
+        private readonly Vec4f _frameCol = new(), _backCol = new(0, 0, 0, 0.6f);
+        private Vec4f _hpCol = new();
+        
+        private static readonly Stack<LoadedTexture> LoadedTexturePool = new();
+        private LoadedTexture _txtTex;
 
-        private readonly ICoreClientAPI _api;
-        private readonly HealthBarSettings _settings;
-        private readonly Matrixf _modelMatrix = new();
-
-        private readonly MeshRef _borderMesh;
-        private readonly MeshRef _backgroundMesh;
-        private readonly MeshRef _healthMesh;
-
-        private LoadedTexture _healthTextTexture;
-        private Vec4f _healthColor = new();
-        private readonly Vec4f _frameColor  = new();
-        private readonly Vec4f _backColor   = new(0, 0, 0, 0.6f);
-
+        private readonly CairoFont _font = CairoFont.WhiteSmallText();
+        private int _cachedHash = 0;
+        private string _cachedText = "";
         private float _opacity;
-        private float _displayPct        = 1f;
-        private bool  _justBecameVisible = true;
-
-        #endregion
-
-        #region Parameters
+        private float _shownPct = 1f;
+        private bool _firstShow = true;
 
         public Entity? TargetEntity { get; set; }
-        public bool IsVisible       { get; set; }
-        public double RenderOrder   => 0.41;
-        public int    RenderRange   => 10;
-        
+        public bool IsVisible { get; set; }
         public bool IsFullyInvisible => _opacity <= 0.001f;
 
-        #endregion
-
-        #region Contructor
+        public double RenderOrder => 0.41;
+        public int RenderRange => 10;
 
         public HealthBarRenderer(ICoreClientAPI api, HealthBarSettings settings)
         {
-            _api      = api      ?? throw new ArgumentNullException(nameof(api));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _capi = api;
+            _set = settings;
 
-            _borderMesh     = _api.Render.UploadMesh(LineMeshUtil.GetRectangle(ColorUtil.WhiteArgb));
-            _backgroundMesh = _api.Render.UploadMesh(QuadMeshUtil.GetQuad());
-            _healthMesh     = _api.Render.UploadMesh(QuadMeshUtil.GetQuad());
+            _borderM = api.Render.UploadMesh(LineMeshUtil.GetRectangle(ColorUtil.WhiteArgb));
+            _backM = api.Render.UploadMesh(QuadMeshUtil.GetQuad());
+            _fillM = api.Render.UploadMesh(QuadMeshUtil.GetQuad());
 
-            ColorUtil.ToRGBAVec4f(
-                ColorUtil.Hex2Int(_settings.FrameColor ?? "#999999"),
-                ref _frameColor);
+            ColorUtil.ToRGBAVec4f(ColorUtil.Hex2Int(_set.FrameColor ?? "#CCCCCC"), ref _frameCol);
 
-            _healthTextTexture = new LoadedTexture(_api);
-            _api.Event.RegisterRenderer(this, EnumRenderStage.Ortho);
+            _txtTex = LoadedTexturePool.TryPop(out var pooled) ? pooled : new LoadedTexture(api);
+            api.Event.RegisterRenderer(this, EnumRenderStage.Ortho);
         }
-
-        #endregion
-
-        #region Rendering
-
-        public void OnRenderFrame(float deltaTime, EnumRenderStage stage)
-        {
-            if (!CanRender()) return;
-
-            var node        = TargetEntity!.WatchedAttributes.GetTreeAttribute("health");
-            var curHealth = node?.GetFloat("currenthealth") ?? 0f;
-            var maxHealth = node?.GetFloat("maxhealth")     ?? 1f;
-            var targetPct = Clamp01(curHealth / maxHealth);
-
-            if (_justBecameVisible)
-            {
-                _displayPct        = targetPct;
-                _justBecameVisible = false;
-            }
-            else if (targetPct < _displayPct)
-            {
-                var lerpStep  = Clamp01(deltaTime * FillLerpSpeed);
-                _displayPct     = Lerp(_displayPct, targetPct, lerpStep);
-            }
-            else
-            {
-                _displayPct = targetPct;
-            }
-
-            UpdateOpacity(deltaTime);
-            UpdateHealthColor(_displayPct);
-
-            _frameColor.A = _backColor.A = _opacity;
-
-            var screen = GetEntityScreenPosition();
-            if (screen.Z < 0) return;
-
-            var distance   = Math.Max(1f, (float)screen.Z);
-            var rawScale   = BaseScaleDivider / distance;
-            var finalScale = Math.Max(MinScale, rawScale * ScaleBoost);
-
-            var w = finalScale * _settings.BarWidth;
-            var h = finalScale * _settings.BarHeight;
-            var x = (float)screen.X - w / 2f;
-            var y = _api.Render.FrameHeight - (float)screen.Y - h - _settings.VerticalOffset;
-
-            var shader = _api.Render.CurrentActiveShader;
-            shader.Uniform("noTexture", 1f);
-            shader.UniformMatrix("projectionMatrix", _api.Render.CurrentProjectionMatrix);
-
-            var bp = BorderPx * RuntimeEnv.GUIScale;
-            shader.Uniform("rgbaIn", _frameColor);
-            DrawBar(shader, _borderMesh, x - bp, y - bp, w + bp * 2, h + bp * 2);
-
-            shader.Uniform("rgbaIn", _backColor);
-            DrawBar(shader, _backgroundMesh, x, y, w, h);
-
-            shader.Uniform("rgbaIn", _healthColor);
-            var fillW   = w * _displayPct;
-            var centerX = x + w / 2f;
-            var newX    = centerX - fillW / 2f;
-            DrawBar(shader, _healthMesh, newX, y, fillW, h);
-
-            DrawHealthText(curHealth, maxHealth, x, y, w, h, finalScale);
-        }
-
-        private bool CanRender()
-        {
-            var node = TargetEntity?.WatchedAttributes.GetTreeAttribute("health");
-            if (node == null) return false;
-
-            var curHealth = node.GetFloat("currenthealth");
-            return curHealth > 0f && (_opacity > 0f || IsVisible);
-        }
-
-        #endregion
-
-        #region Update opacity and color
-
-        private void UpdateOpacity(float dt)
-        {
-            var wasInvisible = _opacity == 0f;
-            var delta       = dt / (IsVisible ? _settings.FadeInSpeed : -_settings.FadeOutSpeed);
-            _opacity          = Clamp01(_opacity + delta);
-
-            if (wasInvisible && _opacity > 0f)
-                _justBecameVisible = true;
-        }
-
-        private void UpdateHealthColor(float percent)
-        {
-            var hex = percent <= _settings.LowHealthThreshold
-                ? _settings.LowHealthColor
-                : percent <= _settings.MidHealthThreshold
-                    ? _settings.MidHealthColor
-                    : _settings.FullHealthColor;
-
-            ColorUtil.ToRGBAVec4f(ColorUtil.Hex2Int(hex), ref _healthColor);
-            _healthColor.A = _opacity;
-        }
-
-        #endregion
-
-        #region Draw mesh
-
-        private void DrawBar(IShaderProgram shader, MeshRef mesh, float x, float y, float w, float h)
-        {
-            _modelMatrix
-                .Set(_api.Render.CurrentModelviewMatrix)
-                .Translate(x, y, ZIndex)
-                .Scale(w, h, 0f)
-                .Translate(0.5f, 0.5f, 0f)
-                .Scale(0.5f, 0.5f, 0f);
-
-            shader.UniformMatrix("modelViewMatrix", _modelMatrix.Values);
-            _api.Render.RenderMesh(mesh);
-        }
-
-        #endregion
-
-        #region Draw text
-
-        private void DrawHealthText(float current, float max,
-                                    float x, float y, float w, float h,
-                                    float scale)
-        {
-            var txt = $"{MathF.Ceiling(current)} / {MathF.Ceiling(max)}";
-
-            var font        = CairoFont.WhiteSmallText();
-            var baseSize = font.UnscaledFontsize;
-
-            font.UnscaledFontsize = baseSize * scale;
-            font.StrokeWidth      = 2.0 * RuntimeEnv.GUIScale * scale;
-
-            font.Color[3]       = _opacity;
-            font.StrokeColor    = new double[] { 0, 0, 0, _opacity };
-
-            _api.Gui.TextTexture.GenOrUpdateTextTexture(txt, font, ref _healthTextTexture);
-            float tw = _healthTextTexture.Width;
-            float th = _healthTextTexture.Height;
-
-            var maxTextHeight = h * 0.9f;
-            if (th > maxTextHeight && th > 0)
-            {
-                var ratio            = maxTextHeight / th;
-                font.UnscaledFontsize *= ratio;
-                font.StrokeWidth      *= ratio;
-                _api.Gui.TextTexture.GenOrUpdateTextTexture(txt, font, ref _healthTextTexture);
-                tw = _healthTextTexture.Width;
-                th = _healthTextTexture.Height;
-            }
-
-            var maxTextWidth = w * 0.9f;
-            if (tw > maxTextWidth && tw > 0)
-            {
-                var ratio            = maxTextWidth / tw;
-                font.UnscaledFontsize *= ratio;
-                font.StrokeWidth      *= ratio;
-                _api.Gui.TextTexture.GenOrUpdateTextTexture(txt, font, ref _healthTextTexture);
-                tw = _healthTextTexture.Width;
-                th = _healthTextTexture.Height;
-            }
-
-            var tx = x + (w - tw) / 2f;
-            var ty = y + (h - th) / 2f;
-
-            _api.Render.Render2DTexturePremultipliedAlpha(
-                _healthTextTexture.TextureId,
-                tx + 1f, ty + 1f, tw, th,
-                ZIndex + 0.9f,
-                new Vec4f(0, 0, 0, _opacity * 0.5f)
-            );
-
-            _api.Render.Render2DTexturePremultipliedAlpha(
-                _healthTextTexture.TextureId,
-                tx, ty, tw, th,
-                ZIndex + 1f,
-                new Vec4f(1, 1, 1, _opacity)
-            );
-        }
-
-        #endregion
-
-        #region Screen position
-
-        private Vec3d GetEntityScreenPosition()
-        {
-            var pos = new Vec3d(
-                TargetEntity!.Pos.X,
-                TargetEntity.Pos.Y + TargetEntity.CollisionBox.Y2,
-                TargetEntity.Pos.Z
-            );
-            pos.Add(TargetEntity.CollisionBox.X2 - TargetEntity.OriginCollisionBox.X2, 0, 0);
-
-            return MatrixToolsd.Project(
-                pos,
-                _api.Render.PerspectiveProjectionMat,
-                _api.Render.PerspectiveViewMat,
-                _api.Render.FrameWidth,
-                _api.Render.FrameHeight
-            );
-        }
-
-        #endregion
-
-        #region IDisposable
 
         public void Dispose()
         {
-            _api.Render.DeleteMesh(_borderMesh);
-            _api.Render.DeleteMesh(_backgroundMesh);
-            _api.Render.DeleteMesh(_healthMesh);
-            _api.Event.UnregisterRenderer(this, EnumRenderStage.Ortho);
-            _healthTextTexture?.Dispose();
+            _capi.Render.DeleteMesh(_borderM);
+            _capi.Render.DeleteMesh(_backM);
+            _capi.Render.DeleteMesh(_fillM);
+            _capi.Event.UnregisterRenderer(this, EnumRenderStage.Ortho);
+
+            _txtTex?.Dispose();
             GC.SuppressFinalize(this);
         }
-
-        #endregion
-
-        #region Help method Clamp/Lerp
-
-        private static float Clamp01(float v)  => v < 0f ? 0f : v > 1f ? 1f : v;
-
-        private static float Lerp(float a, float b, float t)
+        
+        public void OnRenderFrame(float dt, EnumRenderStage stage)
         {
-            t = t switch
+            if (!CanRender()) return;
+
+            var hpNode = TargetEntity!.WatchedAttributes.GetTreeAttribute("health");
+            var cur = hpNode?.GetFloat("currenthealth") ?? 0f;
+            var max = MathF.Max(1f, hpNode?.GetFloat("maxhealth") ?? 1f);
+            var pct = Clamp01(cur / max);
+
+            if (_firstShow)
             {
-                < 0f => 0f,
-                > 1f => 1f,
-                _ => t
-            };
-            return a + (b - a) * t;
+                _shownPct = pct;
+                _firstShow = false;
+            }
+            else if (pct < _shownPct)
+            {
+                _shownPct = Lerp(_shownPct, pct, Clamp01(dt * FillLerpSpeed));
+            }
+            else _shownPct = pct;
+
+            _opacity = Clamp01(_opacity + dt / (IsVisible ? _set.FadeInSpeed : -_set.FadeOutSpeed));
+            if (_opacity <= 0) return; // całkiem niewidoczny
+
+            UpdateHealthColor(_shownPct);
+            _frameCol.A = _backCol.A = _opacity;
+
+            var scr = ProjectOnScreen();
+            if (scr.Z < 0) return;
+
+            var distScale = BaseScaleDivider / MathF.Max(1f, (float)scr.Z);
+            var scale = MathF.Max(MinScale, distScale * ScaleBoost);
+
+            var w = scale * _set.BarWidth;
+            var h = scale * _set.BarHeight;
+            var x = (float)scr.X - w / 2f;
+            var y = _capi.Render.FrameHeight - (float)scr.Y - h - _set.VerticalOffset;
+
+            var sh = _capi.Render.CurrentActiveShader;
+            sh.Uniform("noTexture", 1f);
+            sh.UniformMatrix("projectionMatrix", _capi.Render.CurrentProjectionMatrix);
+
+            var bp = BorderPx * RuntimeEnv.GUIScale;
+            sh.Uniform("rgbaIn", _frameCol);
+            DrawQuad(sh, _borderM, x - bp, y - bp, w + bp * 2, h + bp * 2);
+            sh.Uniform("rgbaIn", _backCol);
+            DrawQuad(sh, _backM, x, y, w, h);
+            sh.Uniform("rgbaIn", _hpCol);
+            DrawQuad(sh, _fillM, x + (w - _shownPct * w) / 2f, y, _shownPct * w, h);
+
+            DrawText(cur, max, x, y, w, h, scale);
+        }
+        
+        private bool CanRender()
+        {
+            var node = TargetEntity?.WatchedAttributes.GetTreeAttribute("health");
+            return node != null && node.GetFloat("currenthealth") > 0 && (_opacity > 0 || IsVisible);
         }
 
-        #endregion
+        private void UpdateHealthColor(float pct)
+        {
+            var hex = pct <= _set.LowHealthThreshold ? _set.LowHealthColor
+                : pct <= _set.MidHealthThreshold ? _set.MidHealthColor
+                : _set.FullHealthColor;
+
+            ColorUtil.ToRGBAVec4f(ColorUtil.Hex2Int(hex), ref _hpCol);
+            _hpCol.A = _opacity;
+        }
+
+        private void DrawQuad(IShaderProgram sh, MeshRef mesh,
+            float x, float y, float w, float h)
+        {
+            _model.Set(_capi.Render.CurrentModelviewMatrix)
+                .Translate(x, y, Z)
+                .Scale(w, h, 0f)
+                .Translate(.5f, .5f, 0f)
+                .Scale(.5f, .5f, 0f);
+
+            sh.UniformMatrix("modelViewMatrix", _model.Values);
+            _capi.Render.RenderMesh(mesh);
+        }
+
+
+        private void DrawText(float cur, float max, float x, float y, float w, float h, float scale)
+        {
+            var sizeBucket = (int)(scale * 32);
+            var txt = $"{MathF.Ceiling(cur)}/{MathF.Ceiling(max)}";
+            var hash = HashCode.Combine(txt, sizeBucket);
+
+            if (hash != _cachedHash)
+            {
+                _cachedHash = hash;
+                _cachedText = txt;
+
+                _font.Color[3] = _opacity;
+                _font.StrokeColor = new double[] { 0, 0, 0, _opacity };
+                _font.UnscaledFontsize = 10 * scale;
+                _font.StrokeWidth = 2.0 * RuntimeEnv.GUIScale;
+
+                for (var i = 0; i < 2; i++)
+                {
+                    _capi.Gui.TextTexture.GenOrUpdateTextTexture(txt, _font, ref _txtTex);
+                    var rw = (w * 0.9f) / _txtTex.Width;
+                    var rh = (h * 0.9f) / _txtTex.Height;
+                    var s = MathF.Min(rw, rh);
+                    if (s >= 1f) break;
+                    _font.UnscaledFontsize *= MathF.Sqrt(s);
+                }
+
+                _capi.Gui.TextTexture.GenOrUpdateTextTexture(txt, _font, ref _txtTex);
+            }
+
+            if (_opacity < 0.01f) return;
+            
+            var tx = x + (w - _txtTex.Width) / 2f;
+            var ty = y + (h - _txtTex.Height) / 2f;
+
+            _capi.Render.Render2DTexturePremultipliedAlpha(
+                _txtTex.TextureId, tx + 1, ty + 1, _txtTex.Width, _txtTex.Height,
+                Z + 0.9f, new Vec4f(0, 0, 0, _opacity * 0.5f));
+
+            _capi.Render.Render2DTexturePremultipliedAlpha(
+                _txtTex.TextureId, tx, ty, _txtTex.Width, _txtTex.Height,
+                Z + 1f, new Vec4f(1, 1, 1, _opacity));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float Clamp01(float v) => v <= 0f ? 0f : (v >= 1f ? 1f : v);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float Lerp(float a, float b, float t) => a + (b - a) * t;
+
+        private Vec3d ProjectOnScreen()
+        {
+            var e = TargetEntity!;
+            var p = new Vec3d(e.Pos.X,
+                e.Pos.Y + e.CollisionBox.Y2,
+                e.Pos.Z);
+            p.Add(e.CollisionBox.X2 - e.OriginCollisionBox.X2, 0, 0);
+
+            return MatrixToolsd.Project(
+                p,
+                _capi.Render.PerspectiveProjectionMat,
+                _capi.Render.PerspectiveViewMat,
+                _capi.Render.FrameWidth,
+                _capi.Render.FrameHeight);
+        }
     }
 }

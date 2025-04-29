@@ -5,52 +5,56 @@ using Vintagestory.API.Common.Entities;
 
 namespace HealthBar.Behaviors
 {
-    public class HealthBarBehavior : EntityBehavior
+    public sealed class HealthBarBehavior : EntityBehavior
     {
-        private readonly ICoreClientAPI _api;
-
-        private readonly Dictionary<long, HealthBarRenderer> _bars = new();
+        private readonly ICoreClientAPI                    _capi;
+        private readonly Dictionary<long, HealthBarRenderer> _bars  = new();
+        private readonly List<long>                         _toDrop = new();
 
         public HealthBarBehavior(Entity entity) : base(entity)
         {
-            _api = (ICoreClientAPI)entity.Api;
+            _capi = (ICoreClientAPI)entity.Api;
         }
 
         public override void OnGameTick(float dt)
         {
-            var selEntity = _api.World.Player.CurrentEntitySelection?.Entity;
-            var selId = selEntity?.EntityId ?? 0;
-            
+            var selEntity = _capi.World.Player.CurrentEntitySelection?.Entity;
+            var selId    = selEntity?.EntityId ?? 0;
+
             if (selEntity != null && !_bars.ContainsKey(selId))
             {
-                var bar = new HealthBarRenderer(_api, HealthBarMod.Settings)
+                _bars.Add(selId, new HealthBarRenderer(_capi, HealthBarMod.Settings)
                 {
                     TargetEntity = selEntity,
-                    IsVisible = true
-                };
-                
-                _bars.Add(selId, bar);
+                    IsVisible    = true
+                });
             }
-            foreach (var id in new List<long>(_bars.Keys))
+
+            if (_bars.Count == 0 && selId == 0) return;
+
+            _toDrop.Clear();
+            foreach (var (key, bar) in _bars)
             {
-                var bar = _bars[id];
+                bar.IsVisible = key == selId;
 
-                bar.IsVisible = id == selId;
+                var mobGone  = bar.TargetEntity is not { Alive : true };
+                var fadedOut = bar.IsFullyInvisible && !bar.IsVisible;
 
-                var mobGone   = bar.TargetEntity is not { Alive: true };
-                var fadedOut  = bar.IsFullyInvisible && !bar.IsVisible;
+                if (mobGone || fadedOut) _toDrop.Add(key);
+            }
 
-                if (!mobGone && !fadedOut) continue;
-                bar.Dispose();
+            foreach (var id in _toDrop)
+            {
+                _bars[id].Dispose();
                 _bars.Remove(id);
             }
         }
 
-        public override void OnEntityDespawn(EntityDespawnData despawn)
+        public override void OnEntityDespawn(EntityDespawnData d)
         {
             foreach (var bar in _bars.Values) bar.Dispose();
             _bars.Clear();
-            base.OnEntityDespawn(despawn);
+            base.OnEntityDespawn(d);
         }
 
         public override string PropertyName() => "mobhealthdisplay";
