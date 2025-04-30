@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using Vintagestory.API.Client;
+
 namespace HealthBar.Config
 {
     /// <summary>
@@ -50,5 +52,45 @@ namespace HealthBar.Config
         public string FrameColor { get; set; } = "#cccccc";
 
         #endregion
+        
+        public void Save(ICoreClientAPI capi)
+        {
+            capi.StoreModConfig(this, "mobhealthdisplay.json");
+        }
+
+        public void Load(ICoreClientAPI capi)
+        {
+            var loaded = capi.LoadModConfig<HealthBarSettings>("mobhealthdisplay.json");
+            if (loaded != null)
+            {
+                this.BarWidth = loaded.BarWidth;
+                this.BarHeight = loaded.BarHeight;
+                this.VerticalOffset = loaded.VerticalOffset;
+                this.FadeInSpeed = loaded.FadeInSpeed;
+                this.FadeOutSpeed = loaded.FadeOutSpeed;
+                this.LowHealthThreshold = loaded.LowHealthThreshold;
+                this.MidHealthThreshold = loaded.MidHealthThreshold;
+                this.LowHealthColor = loaded.LowHealthColor;
+                this.MidHealthColor = loaded.MidHealthColor;
+                this.FullHealthColor = loaded.FullHealthColor;
+                this.FrameColor = loaded.FrameColor;
+            }
+        }
+
+        public void ResetToDefaults()
+        {
+            var defaults = new HealthBarSettings();
+            this.BarWidth = defaults.BarWidth;
+            this.BarHeight = defaults.BarHeight;
+            this.VerticalOffset = defaults.VerticalOffset;
+            this.FadeInSpeed = defaults.FadeInSpeed;
+            this.FadeOutSpeed = defaults.FadeOutSpeed;
+            this.LowHealthThreshold = defaults.LowHealthThreshold;
+            this.MidHealthThreshold = defaults.MidHealthThreshold;
+            this.LowHealthColor = defaults.LowHealthColor;
+            this.MidHealthColor = defaults.MidHealthColor;
+            this.FullHealthColor = defaults.FullHealthColor;
+            this.FrameColor = defaults.FrameColor;
+        }
     }
 }

@@ -1,0 +1,30 @@
+﻿{
+  "settings.title": "HealthBar - Ustawienia",
+
+  "section.sizepos": "Rozmiar i pozycja",
+  "section.animations": "Animacje",
+  "section.thresholds": "Progi HP",
+  "section.colors": "Kolory",
+
+  "label.barwidth": "Szerokość paska",
+  "label.barheight": "Wysokość paska",
+  "label.verticaloffset": "Pionowe przesunięcie",
+
+  "label.fadein": "Prędkość pojawiania (s)",
+  "label.fadeout": "Prędkość zanikania (s)",
+
+  "label.lowhp": "Próg niskiego HP",
+  "label.midhp": "Próg średniego HP",
+
+  "label.colorlow": "Kolor niskiego HP",
+  "label.colormid": "Kolor średniego HP",
+  "label.colorfull": "Kolor pełnego HP",
+  "label.colorframe": "Kolor ramki",
+
+  "button.save": "Zapisz",
+  "button.reset": "Resetuj",
+  "button.close": "Zamknij",
+
+  "message.saved": "Ustawienia zostały zapisane.",
+  "message.reset": "Ustawienia przywrócone do domyślnych."
+}

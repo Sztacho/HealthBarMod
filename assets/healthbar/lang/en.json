@@ -1,0 +1,30 @@
+﻿{
+  "settings.title": "HealthBar - Settings",
+
+  "section.sizepos": "Size and Position",
+  "section.animations": "Animations",
+  "section.thresholds": "HP Thresholds",
+  "section.colors": "Colors",
+
+  "label.barwidth": "Bar Width",
+  "label.barheight": "Bar Height",
+  "label.verticaloffset": "Vertical Offset",
+
+  "label.fadein": "Fade In Speed (s)",
+  "label.fadeout": "Fade Out Speed (s)",
+
+  "label.lowhp": "Low HP Threshold",
+  "label.midhp": "Mid HP Threshold",
+
+  "label.colorlow": "Low HP Color",
+  "label.colormid": "Mid HP Color",
+  "label.colorfull": "Full HP Color",
+  "label.colorframe": "Frame Color",
+
+  "button.save": "Save",
+  "button.reset": "Reset",
+  "button.close": "Close",
+
+  "message.saved": "Settings have been saved.",
+  "message.reset": "Settings have been reset to default."
+}
