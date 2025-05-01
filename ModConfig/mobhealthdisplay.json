@@ -1,4 +1,7 @@
 ﻿{
+  "enable": true,
+  "showOnPlayer": true,
+  
   "BarWidth": 90.0,
   "BarHeight": 8.0,
   "VerticalOffset": 25.0,

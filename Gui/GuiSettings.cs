@@ -31,7 +31,12 @@ public class GuiSettings : GuiDialog
 
         var labelFont = CairoFont.WhiteSmallText().WithFontSize(15f);
         var sectionFont = CairoFont.WhiteMediumText().WithFontSize(17f).WithColor(GuiStyle.ActiveButtonTextColor);
+        
+        AddSection("section.general", sectionFont);
+        AddToggle("label.enabled", _settings.Enabled, val => _settings.Enabled = val, labelFont);
+        AddToggle("label.showonplayer", _settings.ShowOnPlayer, val => _settings.ShowOnPlayer = val, labelFont);
 
+        
         AddSection("section.sizepos", sectionFont);
         AddNumber("label.barwidth", _settings.BarWidth, val => _settings.BarWidth = TryParse(val, _settings.BarWidth), labelFont);
         AddNumber("label.barheight", _settings.BarHeight, val => _settings.BarHeight = TryParse(val, _settings.BarHeight), labelFont);
@@ -88,6 +93,33 @@ public class GuiSettings : GuiDialog
         composer.AddColorPickSlider(baseKey + "-b", "B", b, 30, ref y, _ => UpdateColor(baseKey, onChanged));
         y += 10;
     }
+    
+    private void AddToggle(string langKey, bool value, Action<bool> onToggle, CairoFont font)
+    {
+        composer.AddStaticText(Translate(langKey), font, ElementBounds.Fixed(40, y, 240, 25));
+
+        composer.AddToggleButton(
+            value ? Translate("toggle.on") : Translate("toggle.off"),
+            font,
+            val =>
+            {
+                onToggle(val);
+                if (composer[$"toggle-{langKey}"] is GuiElementToggleButton toggle)
+                {
+                    toggle.Text = val ? Translate("toggle.on") : Translate("toggle.off");
+                    toggle.ComposeElements(null, null);
+                }
+            },
+            ElementBounds.Fixed(310, y, 180, 25),
+            $"toggle-{langKey}"
+        );
+
+        (composer[$"toggle-{langKey}"] as GuiElementToggleButton)?.SetValue(value);
+        y += 35;
+    }
+
+
+
 
     private void UpdateColor(string baseKey, Action<string> onChanged)
     {

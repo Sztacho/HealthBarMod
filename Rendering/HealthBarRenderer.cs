@@ -49,7 +49,7 @@ namespace HealthBar.Rendering
         {
             _capi = api;
             _set = settings;
-
+            
             _borderM = api.Render.UploadMesh(LineMeshUtil.GetRectangle(ColorUtil.WhiteArgb));
             _backM = api.Render.UploadMesh(QuadMeshUtil.GetQuad());
             _fillM = api.Render.UploadMesh(QuadMeshUtil.GetQuad());
