@@ -1,0 +1,23 @@
+﻿{
+  "settings.title": "血条-设置",
+  "section.sizepos": "大小和位置",
+  "section.animations": "动画",
+  "section.thresholds": "HP阈值",
+  "section.colors": "颜色",
+  "label.barwidth": "条形宽度",
+  "label.barheight": "条形高度",
+  "label.verticaloffset": "垂直偏移",
+  "label.fadein": "淡入速度（秒）",
+  "label.fadeout": "淡出速度（秒）",
+  "label.lowhp": "低HP阈值",
+  "label.midhp": "中HP阈值",
+  "label.colorlow": "低HP颜色",
+  "label.colormid": "中HP颜色",
+  "label.colorfull": "满HP颜色",
+  "label.colorframe": "框颜色",
+  "button.save": "保存",
+  "button.reset": "重置",
+  "button.close": "关闭",
+  "message.saved": "设置已保存。",
+  "message.reset": "设置已重置为默认值。"
+}
