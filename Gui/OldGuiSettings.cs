@@ -5,13 +5,13 @@ using Vintagestory.API.Config;
 
 namespace HealthBar.Gui;
 
-public class GuiSettings : GuiDialog
+public class OldGuiSettings : GuiDialog
 {
     private readonly HealthBarSettings _settings;
     private GuiComposer composer;
     private int y = 40;
 
-    public GuiSettings(ICoreClientAPI capi, HealthBarSettings settings, string toggleKeyCombinationCode) : base(capi)
+    public OldGuiSettings(ICoreClientAPI capi, HealthBarSettings settings, string toggleKeyCombinationCode) : base(capi)
     {
         _settings = settings;
         ToggleKeyCombinationCode = toggleKeyCombinationCode;
@@ -33,9 +33,9 @@ public class GuiSettings : GuiDialog
         var sectionFont = CairoFont.WhiteMediumText().WithFontSize(17f).WithColor(GuiStyle.ActiveButtonTextColor);
         
         AddSection("section.general", sectionFont);
-        AddToggle("label.enabled", _settings.Enabled, val => _settings.Enabled = val, labelFont);
-        AddToggle("label.showonplayer", _settings.ShowOnPlayer, val => _settings.ShowOnPlayer = val, labelFont);
-
+        AddSwitch("label.enabled", _settings.Enabled, val => _settings.Enabled = val, labelFont);
+        AddSwitch("label.showonplayer", _settings.ShowOnPlayer, val => _settings.ShowOnPlayer = val, labelFont);
+        AddSwitch("label.showhptext", _settings.ShowHpText, val => _settings.ShowHpText = val, labelFont);
         
         AddSection("section.sizepos", sectionFont);
         AddNumber("label.barwidth", _settings.BarWidth, val => _settings.BarWidth = TryParse(val, _settings.BarWidth), labelFont);
@@ -66,6 +66,10 @@ public class GuiSettings : GuiDialog
         SingleComposer = composer.Compose(focusFirstElement: false);
     }
 
+    private void AddTab(string langKey, CairoFont font)
+    {
+    }
+
     private void AddSection(string langKey, CairoFont font)
     {
         composer.AddStaticText(Translate(langKey), font, ElementBounds.Fixed(20, y, 500, 30));
@@ -88,6 +92,7 @@ public class GuiSettings : GuiDialog
 
         composer.AddStaticText(Translate(langKey), CairoFont.WhiteSmallText(), ElementBounds.Fixed(30, y, 300, 25));
         y += 30;
+        
         composer.AddColorPickSlider(baseKey + "-r", "R", r, 30, ref y, _ => UpdateColor(baseKey, onChanged));
         composer.AddColorPickSlider(baseKey + "-g", "G", g, 30, ref y, _ => UpdateColor(baseKey, onChanged));
         composer.AddColorPickSlider(baseKey + "-b", "B", b, 30, ref y, _ => UpdateColor(baseKey, onChanged));
@@ -118,7 +123,13 @@ public class GuiSettings : GuiDialog
         y += 35;
     }
 
-
+    private void AddSwitch(string langKey, bool value, Action<bool> onToggle, CairoFont font)
+    {
+        composer.AddStaticText(Translate(langKey), font, ElementBounds.Fixed(40, y, 240, 25));
+        composer.AddSwitch(onToggle, ElementBounds.Fixed(310, y, 180, 25), $"switch-{langKey}");
+        (composer[$"switch-{langKey}"] as GuiElementSwitch)?.SetValue(value);
+        y += 35;
+    }
 
 
     private void UpdateColor(string baseKey, Action<string> onChanged)
