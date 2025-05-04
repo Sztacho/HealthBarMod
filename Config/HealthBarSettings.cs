@@ -8,6 +8,13 @@ namespace HealthBar.Config
     /// </summary>
     public class HealthBarSettings
     {
+        #region General
+        public bool Enabled { get; set; } = true;
+        public bool ShowOnPlayer { get; set; } = true;
+        
+        public bool ShowHpText { get; set; } = true;
+        
+        #endregion
         #region Size and position
 
         /// <summary>Width as pixels</summary>
@@ -63,6 +70,9 @@ namespace HealthBar.Config
             var loaded = capi.LoadModConfig<HealthBarSettings>("mobhealthdisplay.json");
             if (loaded != null)
             {
+                this.Enabled = loaded.Enabled;
+                this.ShowOnPlayer = loaded.ShowOnPlayer;
+                this.ShowHpText = loaded.ShowHpText;
                 this.BarWidth = loaded.BarWidth;
                 this.BarHeight = loaded.BarHeight;
                 this.VerticalOffset = loaded.VerticalOffset;
@@ -80,6 +90,9 @@ namespace HealthBar.Config
         public void ResetToDefaults()
         {
             var defaults = new HealthBarSettings();
+            this.Enabled = defaults.Enabled;
+            this.ShowOnPlayer = defaults.ShowOnPlayer;
+            this.ShowHpText = defaults.ShowHpText;
             this.BarWidth = defaults.BarWidth;
             this.BarHeight = defaults.BarHeight;
             this.VerticalOffset = defaults.VerticalOffset;

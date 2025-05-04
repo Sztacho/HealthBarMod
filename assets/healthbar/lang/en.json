@@ -1,10 +1,21 @@
 ﻿{
   "settings.title": "HealthBar - Settings",
 
+  "tab.general":     "General",
+  "tab.sizepos":     "Size and Position",
+  "tab.animations":  "Animations",
+  "tab.thresholds": "HP Thresholds",
+  "tab.colors":      "Colors",
+  
+  "section.general": "General settings",
   "section.sizepos": "Size and Position",
   "section.animations": "Animations",
   "section.thresholds": "HP Thresholds",
   "section.colors": "Colors",
+
+  "label.enabled":       "Enable",
+  "label.showonplayer":  "Show on players",
+  "label.showhptext":    "Show HP Value",
 
   "label.barwidth": "Bar Width",
   "label.barheight": "Bar Height",
@@ -24,6 +35,7 @@
   "button.save": "Save",
   "button.reset": "Reset",
   "button.close": "Close",
+  "button.discord": "Discord",
 
   "message.saved": "Settings have been saved.",
   "message.reset": "Settings have been reset to default."

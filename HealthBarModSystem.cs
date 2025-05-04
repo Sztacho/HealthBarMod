@@ -22,7 +22,7 @@ namespace HealthBar
         public override void StartClientSide(ICoreClientAPI api)
         {
             _capi = api;
-            _guiSettings = new GuiSettings(_capi, Settings, "health:bar:config");
+            _guiSettings = new GuiSimpleTabbedDialog(_capi, Settings, "health:bar:config");
             RegisterBehavior();
             RegisterHotKeys();
         }

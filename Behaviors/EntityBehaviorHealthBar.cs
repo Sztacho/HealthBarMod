@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using HealthBar.Rendering;
 using Vintagestory.API.Client;
+using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 
 namespace HealthBar.Behaviors
 {
     public sealed class HealthBarBehavior : EntityBehavior
     {
-        private readonly ICoreClientAPI                    _capi;
-        private readonly Dictionary<long, HealthBarRenderer> _bars  = new();
-        private readonly List<long>                         _toDrop = new();
+        private readonly ICoreClientAPI _capi;
+        private readonly Dictionary<long, HealthBarRenderer> _bars = new();
+        private readonly List<long> _toDrop = new();
 
         public HealthBarBehavior(Entity entity) : base(entity)
         {
@@ -18,15 +19,26 @@ namespace HealthBar.Behaviors
 
         public override void OnGameTick(float dt)
         {
+            if (!HealthBarMod.Settings.Enabled)
+            {
+                foreach (var bar in _bars.Values)
+                    bar.Dispose();
+                _bars.Clear();
+                return;
+            }
+
             var selEntity = _capi.World.Player.CurrentEntitySelection?.Entity;
-            var selId    = selEntity?.EntityId ?? 0;
+            if (selEntity is EntityPlayer && !HealthBarMod.Settings.ShowOnPlayer)
+                return;
+
+            var selId = selEntity?.EntityId ?? 0;
 
             if (selEntity != null && !_bars.ContainsKey(selId))
             {
                 _bars.Add(selId, new HealthBarRenderer(_capi, HealthBarMod.Settings)
                 {
                     TargetEntity = selEntity,
-                    IsVisible    = true
+                    IsVisible = true
                 });
             }
 
@@ -37,7 +49,7 @@ namespace HealthBar.Behaviors
             {
                 bar.IsVisible = key == selId;
 
-                var mobGone  = bar.TargetEntity is not { Alive : true };
+                var mobGone = bar.TargetEntity is not { Alive : true };
                 var fadedOut = bar.IsFullyInvisible && !bar.IsVisible;
 
                 if (mobGone || fadedOut) _toDrop.Add(key);

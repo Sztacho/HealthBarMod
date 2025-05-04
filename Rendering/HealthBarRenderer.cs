@@ -49,7 +49,7 @@ namespace HealthBar.Rendering
         {
             _capi = api;
             _set = settings;
-
+            
             _borderM = api.Render.UploadMesh(LineMeshUtil.GetRectangle(ColorUtil.WhiteArgb));
             _backM = api.Render.UploadMesh(QuadMeshUtil.GetQuad());
             _fillM = api.Render.UploadMesh(QuadMeshUtil.GetQuad());
@@ -119,8 +119,8 @@ namespace HealthBar.Rendering
             DrawQuad(sh, _backM, x, y, w, h);
             sh.Uniform("rgbaIn", _hpCol);
             DrawQuad(sh, _fillM, x + (w - _shownPct * w) / 2f, y, _shownPct * w, h);
-
-            DrawText(cur, max, x, y, w, h, scale);
+            if(_set.ShowHpText)
+                DrawText(cur, max, x, y, w, h, scale);
         }
         
         private bool CanRender()
