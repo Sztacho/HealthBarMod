@@ -19,6 +19,7 @@
   "button.save": "保存",
   "button.reset": "重置",
   "button.close": "关闭",
+  "button.discord": "Discord",
   "message.saved": "设置已保存。",
-  "message.reset": "设置已重置为默认值。"
+  "message.reset": "设置已重置为默认值。",
 }

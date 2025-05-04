@@ -1,186 +1,168 @@
 ﻿using System.Collections.Generic;
-using Cairo;
 using HealthBar.Config;
+using HealthBar.Gui.Tabs;
+using HealthBar.Gui.Utils;
 using Vintagestory.API.Client;
+using Vintagestory.API.Config;
 
-namespace HealthBar.Gui;
-
-public class GuiSimpleTabbedDialog : GuiDialog
+namespace HealthBar.Gui
 {
-    private readonly string[] tabKeys = new[] { "general", "sizepos", "animations", "colors" };
-    private int currentTabIndex = 0;
-
-    private ElementBounds scrollBounds;
-    private ElementBounds clipBounds;
-    private ElementBounds scrollbarBounds;
-
-    private readonly Dictionary<string, GuiElementTextButton> tabButtons = new();
-    private readonly List<(GuiElementStaticText element, double offsetY)> currentElements = new();
-
-    private const int WIDTH = 800;
-    private const int HEIGHT = 500;
-    private const int TAB_WIDTH = 150;
-    private const int TAB_HEIGHT = 35;
-
-    private float scrollOffsetY = 0;
-
-    public GuiSimpleTabbedDialog(ICoreClientAPI capi, HealthBarSettings settings, string toggleKeyCombinationCode) : base(capi)
+    public class GuiSimpleTabbedDialog : GuiDialog
     {
-        ToggleKeyCombinationCode = toggleKeyCombinationCode;
-        SetupDialog();
-    }
+        private readonly string[] _tabKeys = new[] { "general", "sizepos", "animations", "thresholds", "colors" };
+        private int _currentTabIndex = 0;
+        private readonly HealthBarSettings _settings;
 
-    private void SetupDialog()
-    {
-        var dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
+        private readonly Dictionary<string, GuiElementTextButton> _tabButtons = new();
+        private readonly Dictionary<string, ITabPage> _tabPages;
 
-        var bgBounds = ElementBounds.Fill
-            .WithFixedPadding(GuiStyle.ElementToDialogPadding)
-            .WithFixedWidth(WIDTH)
-            .WithFixedHeight(HEIGHT);
+        private const int Width = 800;
+        private const int Height = 500;
+        private const int TabWidth = 150;
+        private const int TabHeight = 35;
 
-        var tabStartY = GuiStyle.TitleBarHeight + 10;
-        var tabFont = CairoFont.WhiteMediumText().WithFontSize(16f).WithOrientation(EnumTextOrientation.Center);
+        private ElementBounds _insetBounds;
 
-        var contentStartX = TAB_WIDTH + 10;
-        var contentWidth = WIDTH - contentStartX - 20;
-        var contentHeight = HEIGHT - GuiStyle.TitleBarHeight - 40;
-
-        var insetBounds = ElementBounds.Fixed(contentStartX, GuiStyle.TitleBarHeight + 10, contentWidth, contentHeight);
-        scrollbarBounds = insetBounds.RightCopy().WithFixedWidth(20);
-
-        clipBounds = insetBounds.ForkContainingChild(GuiStyle.HalfPadding);
-        scrollBounds = ElementBounds.Fixed(0, 0, contentWidth - 20, 30);
-
-        var composer = capi.Gui.CreateCompo("healthbar_tabs_gui", dialogBounds)
-            .AddDialogTitleBar("Ustawienia", OnCloseClicked)
-            .AddDialogBG(bgBounds)
-            .AddInset(insetBounds, 3);
-
-        for (int i = 0; i < tabKeys.Length; i++)
+        public GuiSimpleTabbedDialog(ICoreClientAPI capi, HealthBarSettings settings, string toggleKeyCombinationCode) :
+            base(capi)
         {
-            int tabIndex = i;
-            string key = tabKeys[i];
+            ToggleKeyCombinationCode = toggleKeyCombinationCode;
+            _settings = settings;
 
-            const int margin = 10;
-            int buttonWidth = TAB_WIDTH - margin * 2;
-            int buttonX = margin;
-            int buttonY = (int)tabStartY + i * (TAB_HEIGHT + 5);
+            _tabPages = new Dictionary<string, ITabPage>
+            {
+                { "general", new GeneralTabPage(settings) },
+                { "sizepos", new SizePosTabPage(settings) },
+                { "animations", new AnimationsTabPage(settings) },
+                { "thresholds", new ThresholdsTabPage(settings) },
+                { "colors", new ColorsTabPage(settings) }
+            };
 
-            var bounds = ElementBounds.Fixed(buttonX, buttonY, buttonWidth, TAB_HEIGHT);
+            BuildDialog();
+        }
 
-            var button = new GuiElementTextButton(
-                capi,
-                key.Capitalize(),
-                tabFont,
-                tabFont,
-                () => { OnTabClicked(tabIndex); return true; },
-                bounds
+        private void BuildDialog()
+        {
+            var contentStartX = TabWidth + 10;
+            var contentWidth = Width - contentStartX - 20;
+            var contentHeight = Height - (float)GuiStyle.TitleBarHeight - 40;
+
+            var dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
+            _insetBounds =
+                ElementBounds.Fixed(contentStartX, GuiStyle.TitleBarHeight + 10, contentWidth, contentHeight);
+
+            var bgBounds = ElementBounds.Fill
+                .WithFixedPadding(GuiStyle.ElementToDialogPadding)
+                .WithFixedWidth(Width)
+                .WithFixedHeight(Height);
+
+            var tabStartY = GuiStyle.TitleBarHeight + 10;
+            var tabFont = CairoFont.WhiteMediumText().WithFontSize(16f).WithOrientation(EnumTextOrientation.Center);
+
+            var composer = capi.Gui.CreateCompo("healthbar_tabs_gui", dialogBounds)
+                .AddDialogTitleBar(GuiComposerUtils.Translate("settings.title"), OnCloseClicked)
+                .AddDialogBG(bgBounds)
+                .AddInset(_insetBounds, 3);
+
+            for (var i = 0; i < _tabKeys.Length; i++)
+            {
+                var tabIndex = i;
+                var key = _tabKeys[i];
+
+                const int margin = 10;
+                const int buttonWidth = TabWidth - margin * 2;
+                var buttonY = (int)tabStartY + i * (TabHeight + 5);
+
+                var bounds = ElementBounds.Fixed(margin, buttonY, buttonWidth, TabHeight);
+
+                var button = new GuiElementTextButton(
+                    capi,
+                    Lang.Get("healthbar:tab." + key),
+                    tabFont,
+                    tabFont,
+                    () =>
+                    {
+                        OnTabClicked(tabIndex);
+                        return true;
+                    },
+                    bounds
+                );
+
+                button.SetActive(tabIndex == _currentTabIndex);
+                _tabButtons[key] = button;
+                composer.AddInteractiveElement(button, $"tab-{key}");
+            }
+
+            var btnStartY = (int)(tabStartY + _tabKeys.Length * (TabHeight + 5) + 20);
+            const int btnHeight = 30;
+            const int btnSpacing = 5;
+            const int btnWidth = TabWidth - 20;
+            const int btnX = 10;
+
+            composer
+                .AddSmallButton(GuiComposerUtils.Translate("button.save"), OnSaveClicked,
+                    ElementBounds.Fixed(btnX, btnStartY, btnWidth, btnHeight))
+                .AddSmallButton(GuiComposerUtils.Translate("button.reset"), OnResetClicked,
+                    ElementBounds.Fixed(btnX, btnStartY + btnHeight + btnSpacing, btnWidth, btnHeight))
+                .AddSmallButton(GuiComposerUtils.Translate("button.close"), TryClose,
+                    ElementBounds.Fixed(btnX, btnStartY + 2 * (btnHeight + btnSpacing), btnWidth, btnHeight));
+
+            float y = 0;
+            _tabPages[_tabKeys[_currentTabIndex]].Compose(capi, composer, _insetBounds, ref y);
+
+            const int discordBtnHeight = 30;
+            const int dialogBottom = Height - 20;
+            const int discordBtnY = dialogBottom - discordBtnHeight - 20;
+
+            composer.AddSmallButton(
+                GuiComposerUtils.Translate("button.discord"),
+                () =>
+                {
+                    capi.Gui.OpenLink("https://discord.gg/vpdsneENyE");
+                    return true;
+                },
+                ElementBounds.Fixed(10, discordBtnY, TabWidth - 20, discordBtnHeight)
             );
 
-            button.SetActive(tabIndex == currentTabIndex);
-            tabButtons[key] = button;
-            composer.AddInteractiveElement(button, $"tab-{key}");
+            SingleComposer = composer.Compose();
         }
 
-        composer
-            .BeginClip(clipBounds)
-            .AddDynamicCustomDraw(scrollBounds, OnDrawScrollContent, "scroll-draw")
-            .EndClip()
-            .AddVerticalScrollbar(OnScrollbarChanged, scrollbarBounds, "scrollbar");
 
-        SingleComposer = composer.Compose();
-
-        LoadTabContent(currentTabIndex);
-    }
-
-    private void LoadTabContent(int tabIndex)
-    {
-        currentElements.Clear();
-
-        var font = CairoFont.WhiteSmallText();
-        float y = 0;
-
-        for (int i = 0; i < 20; i++)
+        private void OnTabClicked(int tabIndex)
         {
-            var bounds = ElementBounds.Fixed(0, y, 500, 30);
-            bounds.ParentBounds = scrollBounds; // <=== KLUCZOWE!
-            bounds.CalcWorldBounds();
+            if (tabIndex == _currentTabIndex) return;
 
-            var element = new GuiElementStaticText(
-                capi,
-                $"[{tabKeys[tabIndex].Capitalize()}] Element {i + 1}",
-                EnumTextOrientation.Left,
-                bounds,
-                font
-            );
+            _tabButtons[_tabKeys[_currentTabIndex]].SetActive(false);
+            _currentTabIndex = tabIndex;
+            _tabButtons[_tabKeys[_currentTabIndex]].SetActive(true);
 
-            currentElements.Add((element, y));
-            y += 35;
+            SingleComposer?.Dispose();
+            BuildDialog();
         }
 
-        scrollBounds.fixedHeight = y;
-        scrollBounds.CalcWorldBounds();
-
-        var scrollbar = SingleComposer.GetScrollbar("scrollbar");
-        scrollbar?.SetHeights((float)clipBounds.fixedHeight, y);
-
-        scrollOffsetY = 0;
-
-        capi.Event.EnqueueMainThreadTask(() =>
+        private void OnCloseClicked()
         {
-            SingleComposer.GetCustomDraw("scroll-draw").Redraw();
-        }, "force-redraw");
-    }
-
-    private void OnTabClicked(int tabIndex)
-    {
-        if (tabIndex == currentTabIndex) return;
-
-        tabButtons[tabKeys[currentTabIndex]].SetActive(false);
-        currentTabIndex = tabIndex;
-        tabButtons[tabKeys[currentTabIndex]].SetActive(true);
-
-        scrollOffsetY = 0;
-
-        var scrollbar = SingleComposer.GetScrollbar("scrollbar");
-        scrollbar?.SetScrollbarPosition(0);
-
-        LoadTabContent(currentTabIndex);
-    }
-
-    private void OnScrollbarChanged(float value)
-    {
-        scrollOffsetY = 5 - value;
-        scrollBounds.fixedY = scrollOffsetY;
-        scrollBounds.CalcWorldBounds();
-        SingleComposer.GetCustomDraw("scroll-draw").Redraw();
-    }
-
-    private void OnCloseClicked()
-    {
-        TryClose();
-    }
-
-    private void OnDrawScrollContent(Context ctx, ImageSurface surface, ElementBounds currentBounds)
-    {
-        foreach (var (element, relY) in currentElements)
-        {
-            if (element?.Bounds == null) continue;
-
-            element.Bounds.absFixedX = currentBounds.absFixedX;
-            element.Bounds.absFixedY = currentBounds.absFixedY + scrollOffsetY + relY;
-            element.ComposeElements(ctx, surface);
+            TryClose();
         }
-    }
 
-    public override string ToggleKeyCombinationCode { get; }
-}
+        private bool OnSaveClicked()
+        {
+            _settings.Save(capi);
+            capi.ShowChatMessage(GuiComposerUtils.Translate("message.saved"));
+            TryClose();
+            return true;
+        }
 
-public static class StringExtensions
-{
-    public static string Capitalize(this string s)
-    {
-        return string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s[1..];
+        private bool OnResetClicked()
+        {
+            _settings.ResetToDefaults();
+            capi.ShowChatMessage(GuiComposerUtils.Translate("message.reset"));
+            _settings.Save(capi);
+            TryClose();
+            return true;
+        }
+
+
+        public override string ToggleKeyCombinationCode { get; }
     }
 }

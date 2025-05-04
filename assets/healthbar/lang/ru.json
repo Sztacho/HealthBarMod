@@ -1,0 +1,32 @@
+﻿{
+  "_translatedBy": "Translated by ChimMAG",
+
+  "settings.title": "HealthBar - Настройки",
+
+  "section.sizepos": "Размер и позиция",
+  "section.animations": "Анимации",
+  "section.thresholds": "Пороговые значения здоровья",
+  "section.colors": "Цвета",
+
+  "label.barwidth": "Ширина индикатора",
+  "label.barheight": "Высота индикатора",
+  "label.verticaloffset": "Смещение по вертикали",
+
+  "label.fadein": "Скорость появления (с)",
+  "label.fadeout": "Скорость исчезновения (с)",
+
+  "label.lowhp": "Порог низкого здоровья",
+  "label.midhp": "Порог среднего здоровья",
+
+  "label.colorlow": "Цвет при низком здоровье",
+  "label.colormid": "Цвет при среднем здоровье",
+  "label.colorfull": "Цвет при полном здоровье",
+  "label.colorframe": "Цвет рамки",
+
+  "button.save": "Сохранить",
+  "button.reset": "Сбросить",
+  "button.close": "Закрыть",
+
+  "message.saved": "Настройки сохранены.",
+  "message.reset": "Настройки были сброшены по умолчанию."
+}
