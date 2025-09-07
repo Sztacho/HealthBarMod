@@ -1,0 +1,24 @@
+﻿{
+  "_translatedBy": "Translated by Aimli_",
+
+  "sizeAndPosition": "大小和位置",
+  "animations": "动画",
+  "hpThresholds": "HP阈值",
+  "colors": "颜色",
+
+  "barwidth": "条形宽度",
+  "barheight": "条形高度",
+  "verticalOffset": "垂直偏移",
+
+  "fadeinSpeed": "淡入速度（秒）",
+  "fadeoutSpeed": "淡出速度（秒）",
+
+  "midHp-threshold": "中HP阈值",
+  "lowHp-threshold": "低HP阈值",
+
+  "midHp-color": "中HP颜色",
+  "lowHp-color": "低HP颜色",
+
+  "fullHp-color": "满HP颜色",
+  "frame-color": "框颜色"
+}

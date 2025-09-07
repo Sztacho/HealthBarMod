@@ -1,0 +1,27 @@
+﻿{
+  "general": "Ogólne",
+  "sizeAndPosition": "Rozmiar i pozycja",
+  "animations": "Animacje",
+  "hpThresholds": "Progi HP",
+  "colors": "Kolory",
+
+  "enabled": "Włączone",
+  "showonplayer": "Pokaż na graczu",
+  "showhptext": "Pokaż wartość HP",
+
+  "barwidth": "Szerokość paska",
+  "barheight": "Wysokość paska",
+  "verticalOffset": "Pionowe przesunięcie",
+
+  "fadeinSpeed": "Prędkość pojawiania (s)",
+  "fadeoutSpeed": "Prędkość zanikania (s)",
+
+  "midHp-threshold": "Próg średniego HP",
+  "lowHp-threshold": "Próg niskiego HP",
+
+  "midHp-color": "Kolor średniego HP",
+  "lowHp-color": "Kolor niskiego HP",
+
+  "fullHp-color": "Kolor pełnego HP",
+  "frame-color": "Kolor ramki"
+}

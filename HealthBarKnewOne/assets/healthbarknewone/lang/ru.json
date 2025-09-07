@@ -1,0 +1,24 @@
+﻿{
+  "_translatedBy": "Translated by ChimMAG",
+
+  "sizeAndPosition": "Размер и позиция",
+  "animations": "Анимации",
+  "hpThresholds": "Пороговые значения здоровья",
+  "colors": "Цвета",
+
+  "barwidth": "Ширина индикатора",
+  "barheight": "Высота индикатора",
+  "verticalOffset": "Смещение по вертикали",
+
+  "fadeinSpeed": "Скорость появления (с)",
+  "fadeoutSpeed": "Скорость исчезновения (с)",
+
+  "midHp-threshold": "Порог среднего здоровья",
+  "lowHp-threshold": "Порог низкого здоровья",
+
+  "midHp-color": "Цвет при среднем здоровье",
+  "lowHp-color": "Цвет при низком здоровье",
+
+  "fullHp-color": "Цвет при полном здоровье",
+  "frame-color": "Цвет рамки"
+}

@@ -1,0 +1,171 @@
+{
+  "version": 3,
+  "file": "HealthbarKnewOne.json",
+  "settings": [
+    {
+      "type": "separator",
+      "title": "general",
+      "weight": 1.0
+    },
+    {
+      "code": "Enabled",
+      "ingui": "enabled",
+      "type": "boolean",
+      "comment": "enabled-comment",
+      "default": true,
+      "weight": 1.1
+    },
+    {
+      "code": "ShowOnPlayer",
+      "ingui": "showonplayer",
+      "type": "boolean",
+      "comment": "showonplayer-comment",
+      "default": true,
+      "weight": 1.2
+    },
+    {
+      "code": "ShowHpText",
+      "ingui": "showhptext",
+      "type": "boolean",
+      "comment": "showhptext-comment",
+      "default": true,
+      "weight": 1.3
+    },
+    {
+      "type": "separator",
+      "title": "sizeAndPosition",
+      "weight": 2.0
+    },
+    {
+      "code": "BarWidth",
+      "ingui": "barwidth",
+      "type": "float",
+      "comment": "barwidth-comment",
+      "default": 66.0,
+      "weight": 2.1,
+      "range": {
+        "min": 5,
+        "max": 500
+      }
+    },
+    {
+      "code": "BarHeight",
+      "ingui": "barheight",
+      "type": "float",
+      "comment": "barheight-comment",
+      "default": 6.6,
+      "weight": 2.2,
+      "range": {
+        "min": 5,
+        "max": 500
+      }
+    },
+    {
+      "code": "VerticalOffset",
+      "ingui": "verticalOffset",
+      "type": "float",
+      "comment": "verticalOffset-comment",
+      "default": 22.0,
+      "weight": 2.3,
+      "range": {
+        "min": 0,
+        "max": 500
+      }
+    },
+    {
+      "type": "separator",
+      "title": "animations",
+      "weight": 3.0
+    },
+    {
+      "code": "FadeInSpeed",
+      "ingui": "fadeinSpeed",
+      "type": "float",
+      "comment": "fadeinSpeed-comment",
+      "default": 0.3,
+      "weight": 3.1,
+      "range": {
+        "min": 0,
+        "max": 5
+      }
+    },
+    {
+      "code": "FadeOutSpeed",
+      "ingui": "fadeoutSpeed",
+      "type": "float",
+      "comment": "fadeoutSpeed-comment",
+      "default": 0.5,
+      "weight": 3.2,
+      "range": {
+        "min": 0,
+        "max": 5
+      }
+    },
+    {
+      "type": "separator",
+      "title": "hpThresholds",
+      "weight": 4.0
+    },
+    {
+      "code": "MidHealthThreshold",
+      "ingui": "midHp-threshold",
+      "type": "float",
+      "comment": "midHp-threshold-comment",
+      "default": 0.6,
+      "weight": 4.2,
+      "range": {
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "code": "LowHealthThreshold",
+      "ingui": "lowHp-threshold",
+      "type": "float",
+      "comment": "lowHp-threshold-comment",
+      "default": 0.25,
+      "weight": 4.1,
+      "range": {
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "type": "separator",
+      "title": "colors",
+      "weight": 5.0
+    },
+    {
+      "code": "FullHealthColor",
+      "ingui": "fullHp-color",
+      "type": "color",
+      "comment": "fullHp-color-comment",
+      "default": "#44FF44",
+      "weight": 5.2
+    },
+    {
+      "code": "MidHealthColor",
+      "ingui": "midHp-color",
+      "type": "color",
+      "comment": "midHp-color-comment",
+      "default": "#FFCC00",
+      "weight": 5.3
+    },
+    {
+      "code": "LowHealthColor",
+      "ingui": "lowHp-color",
+      "type": "color",
+      "comment": "lowHp-color-comment",
+      "default": "#FF4444",
+      "weight": 5.4
+    },
+    {
+      "code": "FrameColor",
+      "ingui": "frame-color",
+      "type": "color",
+      "comment": "frame-color-comment",
+      "default": "#cccccc",
+      "weight": 5.5
+    }
+  ]
+}
