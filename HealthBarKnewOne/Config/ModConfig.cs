@@ -1,15 +1,15 @@
 ﻿#nullable enable
-namespace HealthBar;
+namespace HealthBarKnewOne;
 public class ModConfig {
 	public static string ConfigName = "HealthbarKnewOne.json";
-	public static ModConfig Instance = new ModConfig();
+	public static ModConfig Instance = new();
 
 	public bool Enabled = true;
 	public bool ShowOnPlayer = true;
 	public bool ShowHpText = true;
-	public float BarWidth = 66f;
-	public float BarHeight = 6.6f;
-	public float VerticalOffset = 22f;
+	public int BarWidth = 66;
+	public int BarHeight = 7;
+	public int VerticalOffset = 22;
 
 	public float FadeInSpeed = 0.3f;
 	public float FadeOutSpeed = 0.5f;
@@ -19,6 +19,6 @@ public class ModConfig {
 	public string LowHealthColor = "#FF4444";
 	public string FrameColor = "#cccccc";
 
-	public float MidHealthThreshold = 0.6f;
-	public float LowHealthThreshold = 0.25f;
+	public int MidHealthThreshold = 60;
+	public int LowHealthThreshold = 25;
 }

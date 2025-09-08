@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 7,
   "file": "HealthbarKnewOne.json",
   "settings": [
     {
@@ -39,9 +39,9 @@
     {
       "code": "BarWidth",
       "ingui": "barwidth",
-      "type": "float",
+      "type": "Integer",
       "comment": "barwidth-comment",
-      "default": 66.0,
+      "default": 66,
       "weight": 2.1,
       "range": {
         "min": 5,
@@ -51,9 +51,9 @@
     {
       "code": "BarHeight",
       "ingui": "barheight",
-      "type": "float",
+      "type": "Integer",
       "comment": "barheight-comment",
-      "default": 6.6,
+      "default": 7,
       "weight": 2.2,
       "range": {
         "min": 5,
@@ -63,10 +63,10 @@
     {
       "code": "VerticalOffset",
       "ingui": "verticalOffset",
-      "type": "float",
+      "type": "Integer",
       "comment": "verticalOffset-comment",
-      "default": 22.0,
-      "weight": 2.3,
+      "default": 22,
+      "weight": 2,
       "range": {
         "min": 0,
         "max": 500
@@ -109,9 +109,9 @@
     {
       "code": "MidHealthThreshold",
       "ingui": "midHp-threshold",
-      "type": "float",
+      "type": "Integer",
       "comment": "midHp-threshold-comment",
-      "default": 0.6,
+      "default": 60,
       "weight": 4.2,
       "range": {
         "min": 0,
@@ -121,9 +121,9 @@
     {
       "code": "LowHealthThreshold",
       "ingui": "lowHp-threshold",
-      "type": "float",
+      "type": "Integer",
       "comment": "lowHp-threshold-comment",
-      "default": 0.25,
+      "default": 25,
       "weight": 4.1,
       "range": {
         "min": 0,
