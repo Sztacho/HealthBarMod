@@ -5,7 +5,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
 namespace HealthBarKnewOne;
-public class HealthBarKnewOneModSystem : ModSystem {
+public class Core : ModSystem {
 	public static ILogger Logger { get; private set; }
 	public static ICoreAPI Api { get; private set; }
 	public static Mod ModI { get; private set; }

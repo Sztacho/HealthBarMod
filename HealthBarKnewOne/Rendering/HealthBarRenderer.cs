@@ -16,7 +16,7 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 	private const float FillLerpSpeed = 6f;
 	private const float BorderPx = 1f;
 
-	private static ICoreClientAPI Api => HealthBarKnewOneModSystem.Api as ICoreClientAPI;
+	private static ICoreClientAPI Api => Core.Api as ICoreClientAPI;
 	public static ModConfig Config => ModConfig.Instance;
 	private readonly Matrixf _model = new();
 

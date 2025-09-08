@@ -42,3 +42,4 @@ Mods/*.zip
 
 # Other potentially generated files
 *.lock.json
+/Releases

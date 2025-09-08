@@ -7,7 +7,7 @@
     "KnewOne"
   ],
   "description": "Shows a clean, distance-scaled health bar above mobs and players.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "website": "https://github.com/IKnewOne/HealthBarMod",
   "dependencies": {
     "game": ""

@@ -8,7 +8,7 @@ namespace HealthBarKnewOne.Behaviors;
 public sealed class HealthBarBehavior : EntityBehavior {
 	private readonly Dictionary<long, HealthBarRenderer> bars = new();
 	private readonly List<long> _toDrop = new();
-	private static ICoreClientAPI Api => HealthBarKnewOneModSystem.Api as ICoreClientAPI;
+	private static ICoreClientAPI Api => Core.Api as ICoreClientAPI;
 	private ModConfig config => ModConfig.Instance;
 
 	public HealthBarBehavior(Entity entity) : base(entity) { }
