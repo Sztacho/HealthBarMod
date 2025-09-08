@@ -5,11 +5,10 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
 namespace HealthBarKnewOne;
-public class Core : ModSystem {
+public class Core : Vintagestory.API.Common.ModSystem {
 	public static ILogger Logger { get; private set; }
 	public static ICoreAPI Api { get; private set; }
 	public static Mod ModI { get; private set; }
-
 	public override void Start(ICoreAPI api) {
 		base.Start(api);
 		api.RegisterEntityBehaviorClass("mobhealthdisplay", typeof(HealthBarBehavior));
@@ -46,8 +45,10 @@ public class Core : ModSystem {
 			if (domain != "healthbarknewone")
 				return;
 
-			var succ = setting.AssignSettingValue(ModConfig.Instance);
-			ModConfig.Instance = api.LoadModConfig<ModConfig>(ModConfig.ConfigName); // Refused to cooperate without this
+			// Color is a bit fucked rn
+			if (setting.AssignSettingValue(ModConfig.Instance) && setting.SettingType == ConfigSettingType.Color) {
+				ModConfig.Instance = api.LoadModConfig<ModConfig>(ModConfig.ConfigName);
+			}
 		};
 
 		system.ConfigsLoaded += () => {
