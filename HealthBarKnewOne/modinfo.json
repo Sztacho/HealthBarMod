@@ -1,14 +1,14 @@
 {
   "type": "code",
-  "modid": "healthbarknewone",
+  "modid": "healthbar",
   "name": "HealthBar",
   "authors": [
     "StachoPL",
     "KnewOne"
   ],
   "description": "Shows a clean, distance-scaled health bar above mobs and players.",
-  "version": "1.2.1",
-  "website": "https://github.com/IKnewOne/HealthBarMod",
+  "version": "1.1.0",
+  "website": "https://github.com/Sztacho/HealthBarMod",
   "dependencies": {
     "game": ""
   }

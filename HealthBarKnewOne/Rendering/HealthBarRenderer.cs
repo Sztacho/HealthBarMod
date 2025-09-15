@@ -6,7 +6,7 @@ using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 
-namespace HealthBarKnewOne.Rendering;
+namespace HealthBar.Rendering;
 public sealed class HealthBarRenderer : IRenderer, IDisposable {
 	private const float BaseScaleDivider = 4f;
 	private const float ScaleBoost = 2f;

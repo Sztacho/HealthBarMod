@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using HealthBarKnewOne.Rendering;
+using HealthBar.Rendering;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 
-namespace HealthBarKnewOne.Behaviors;
+namespace HealthBar.Behaviors;
 public sealed class HealthBarBehavior : EntityBehavior {
 	private readonly Dictionary<long, HealthBarRenderer> bars = new();
 	private readonly List<long> _toDrop = new();

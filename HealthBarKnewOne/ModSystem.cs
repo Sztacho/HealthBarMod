@@ -1,9 +1,9 @@
 ﻿using System;
-using HealthBarKnewOne.Behaviors;
+using HealthBar.Behaviors;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
-namespace HealthBarKnewOne;
+namespace HealthBar;
 public class ModSystem : Vintagestory.API.Common.ModSystem {
 	public static ILogger Logger { get; private set; }
 	public static ICoreAPI Api { get; private set; }
