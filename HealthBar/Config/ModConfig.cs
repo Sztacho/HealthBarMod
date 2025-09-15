@@ -1,7 +1,7 @@
 ﻿#nullable enable
 namespace HealthBar;
 public class ModConfig {
-	public static string ConfigName = "HealthbarKnewOne.json";
+	public static string ConfigName = "HealthBar.json";
 	public static ModConfig Instance = new();
 
 	public bool Enabled = true;
