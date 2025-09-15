@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="configlib">
-          <HintPath>..\..\VSLibs\configlib\configlib.dll</HintPath>
+		<Reference Include="configlib">
+			<HintPath>$(VSLIBS)/dlls\configlib.dll</HintPath>
 			<Private>false</Private>
-        </Reference>
+		</Reference>
         <Reference Include="VintagestoryAPI">
             <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
             <Private>false</Private>

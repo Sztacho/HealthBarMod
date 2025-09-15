@@ -8,7 +8,7 @@ namespace HealthBarKnewOne.Behaviors;
 public sealed class HealthBarBehavior : EntityBehavior {
 	private readonly Dictionary<long, HealthBarRenderer> bars = new();
 	private readonly List<long> _toDrop = new();
-	private static ICoreClientAPI Api => Core.Api as ICoreClientAPI;
+	private static ICoreClientAPI Capi => ModSystem.Api as ICoreClientAPI;
 	private ModConfig config => ModConfig.Instance;
 
 	public HealthBarBehavior(Entity entity) : base(entity) { }
@@ -21,7 +21,7 @@ public sealed class HealthBarBehavior : EntityBehavior {
 			return;
 		}
 
-		var selEntity = Api.World.Player.CurrentEntitySelection?.Entity;
+		var selEntity = Capi.World.Player.CurrentEntitySelection?.Entity;
 		if (selEntity is EntityPlayer && !config.ShowOnPlayer)
 			return;
 
