@@ -8,6 +8,12 @@
   "enabled": "Enable",
   "enabled-comment": "Enable or disable the health bar display.",
 
+  "targetOnlyHealthBar": "Target only healthbar",
+  "targetOnlyHealthBar-comment": "Show healthbar only for the target. Has limited range and is not impacted by Display Range",
+
+  "displayRange": "Display range",
+  "displayRange-comment": "How far the entities can be for the healthbar. High values may lead to lag",
+
   "showonplayer": "Show on players",
   "showonplayer-comment": "Displays the health bar on the player.",
 
@@ -20,6 +26,11 @@
   "barheight-comment": "Height of the health bar in pixels.",
   "verticalOffset": "Vertical Offset",
   "verticalOffset-comment": "Vertical offset of the health bar in pixels.",
+
+  "minScale": "Minimum Scale",
+  "minScale-comment": "Minimum size multiplier for health bars at high distance.",
+  "maxScale": "Maximum Scale",
+  "maxScale-comment": "Maximum size multiplier for health bars when very close.",
 
   "fadeinSpeed": "Fade In Speed (s)",
   "fadeinSpeed-comment": "Time in seconds for the bar to fully appear.",

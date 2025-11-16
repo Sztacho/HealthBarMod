@@ -7,7 +7,8 @@
     "KnewOne"
   ],
   "description": "Shows a clean, distance-scaled health bar above mobs and players.",
-  "version": "1.1.2",
+  "version": "1.2.0",
+  "side" : "client",
   "website": "https://github.com/Sztacho/HealthBarMod",
   "dependencies": {
     "game": ""

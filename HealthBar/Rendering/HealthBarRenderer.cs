@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using HealthBar.Config;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -9,8 +10,6 @@ using Vintagestory.API.MathTools;
 namespace HealthBar.Rendering;
 public sealed class HealthBarRenderer : IRenderer, IDisposable {
 	private const float BaseScaleDivider = 4f;
-	private const float ScaleBoost = 2f;
-	private const float MinScale = 0.7f;
 	private const float Z = 20f;
 
 	private const float FillLerpSpeed = 6f;
@@ -31,7 +30,7 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 	private int _cachedHash = 0;
 	private string _cachedText = "";
 	private float opacity;
-	private float _shownPct = 1f;
+	private float _shownPercent = 1f;
 	private bool _firstShow = true;
 
 	public Entity? TargetEntity { get; set; }
@@ -52,16 +51,6 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 		Api.Event.RegisterRenderer(this, EnumRenderStage.Ortho);
 	}
 
-	public void Dispose() {
-		Api.Render.DeleteMesh(border);
-		Api.Render.DeleteMesh(background);
-		Api.Render.DeleteMesh(fillMesh);
-		Api.Event.UnregisterRenderer(this, EnumRenderStage.Ortho);
-
-		_txtTex?.Dispose();
-		GC.SuppressFinalize(this);
-	}
-
 	public void OnRenderFrame(float dt, EnumRenderStage stage) {
 		if (!CanRender())
 			return;
@@ -72,12 +61,12 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 		var percentHp = Clamp01(currentHp / maxHp);
 
 		if (_firstShow) {
-			_shownPct = percentHp;
+			_shownPercent = percentHp;
 			_firstShow = false;
-		} else if (percentHp < _shownPct) {
-			_shownPct = Lerp(_shownPct, percentHp, Clamp01(dt * FillLerpSpeed));
+		} else if (percentHp < _shownPercent) {
+			_shownPercent = Lerp(_shownPercent, percentHp, Clamp01(dt * FillLerpSpeed));
 		} else
-			_shownPct = percentHp;
+			_shownPercent = percentHp;
 
 		opacity = Clamp01(opacity + dt / (IsVisible ? Config.FadeInSpeed : -Config.FadeOutSpeed));
 		if (opacity <= 0)
@@ -90,8 +79,13 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 		if (scr.Z < 0)
 			return;
 
-		var distScale = BaseScaleDivider / MathF.Max(1f, (float)scr.Z);
-		var scale = MathF.Max(MinScale, distScale * ScaleBoost);
+		// Calculate scale based on distance with configurable min/max bounds
+		var distance = MathF.Max(1f, (float)scr.Z);
+		var distScale = BaseScaleDivider / distance;
+
+		// Derive scale boost from max scale to maintain inverse curve shape
+		var scaleBoost = Config.MaxScale / BaseScaleDivider;
+		var scale = Math.Clamp(distScale * scaleBoost, Config.MinScale, Config.MaxScale);
 
 		var width = scale * Config.BarWidth;
 		var height = scale * Config.BarHeight;
@@ -108,7 +102,7 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 		sh.Uniform("rgbaIn", backgroundColor);
 		DrawQuad(sh, background, x, y, width, height);
 		sh.Uniform("rgbaIn", hpColor);
-		DrawQuad(sh, fillMesh, x + (width - _shownPct * width) / 2f, y, _shownPct * width, height);
+		DrawQuad(sh, fillMesh, x + (width - _shownPercent * width) / 2f, y, _shownPercent * width, height);
 		if (Config.ShowHpText)
 			DrawText(currentHp, maxHp, x, y, width, height, scale);
 	}
@@ -139,6 +133,9 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 
 
 	private void DrawText(float cur, float max, float x, float y, float w, float h, float scale) {
+		if (opacity < 0.01f)
+			return;
+
 		var sizeBucket = (int)(scale * 32);
 		var txt = $"{MathF.Ceiling(cur)}/{MathF.Ceiling(max)}";
 		var hash = HashCode.Combine(txt, sizeBucket);
@@ -147,8 +144,8 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 			_cachedHash = hash;
 			_cachedText = txt;
 
-			_font.Color[3] = opacity;
-			_font.StrokeColor = new double[] { 0, 0, 0, opacity };
+			_font.Color[3] = 1.0;
+			_font.StrokeColor = new double[] { 0, 0, 0, 1.0 };
 			_font.UnscaledFontsize = 10 * scale;
 			_font.StrokeWidth = 2.0 * RuntimeEnv.GUIScale;
 
@@ -165,19 +162,18 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 			Api.Gui.TextTexture.GenOrUpdateTextTexture(txt, _font, ref _txtTex);
 		}
 
-		if (opacity < 0.01f)
-			return;
-
 		var tx = x + (w - _txtTex.Width) / 2f;
 		var ty = y + (h - _txtTex.Height) / 2f;
 
+		// Apply opacity to both RGB and Alpha for proper premultiplied alpha rendering
+		var shadowOpacity = opacity * 0.5f;
 		Api.Render.Render2DTexturePremultipliedAlpha(
 			_txtTex.TextureId, tx + 1, ty + 1, _txtTex.Width, _txtTex.Height,
-			Z + 0.9f, new Vec4f(0, 0, 0, opacity * 0.5f));
+			Z + 2f, new Vec4f(shadowOpacity, shadowOpacity, shadowOpacity, shadowOpacity));
 
 		Api.Render.Render2DTexturePremultipliedAlpha(
 			_txtTex.TextureId, tx, ty, _txtTex.Width, _txtTex.Height,
-			Z + 1f, new Vec4f(1, 1, 1, opacity));
+			Z + 3f, new Vec4f(opacity, opacity, opacity, opacity));
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -199,5 +195,15 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 			Api.Render.PerspectiveViewMat,
 			Api.Render.FrameWidth,
 			Api.Render.FrameHeight);
+	}
+
+	public void Dispose() {
+		Api.Render.DeleteMesh(border);
+		Api.Render.DeleteMesh(background);
+		Api.Render.DeleteMesh(fillMesh);
+		Api.Event.UnregisterRenderer(this, EnumRenderStage.Ortho);
+
+		_txtTex?.Dispose();
+		GC.SuppressFinalize(this);
 	}
 }
