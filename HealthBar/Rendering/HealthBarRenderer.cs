@@ -70,7 +70,7 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 
 		opacity = Clamp01(opacity + dt / (IsVisible ? Config.FadeInSpeed : -Config.FadeOutSpeed));
 		if (opacity <= 0)
-			return; // całkiem niewidoczny
+			return;
 
 		UpdateHealthColor((int)(percentHp * 100));
 		frameColor.A = backgroundColor.A = opacity;
@@ -85,12 +85,19 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 
 		// Derive scale boost from max scale to maintain inverse curve shape
 		var scaleBoost = Config.MaxScale / BaseScaleDivider;
+		if (Config.MinScale > Config.MaxScale) Config.MinScale = Config.MaxScale;
 		var scale = Math.Clamp(distScale * scaleBoost, Config.MinScale, Config.MaxScale);
+
+		// Calculate scaled vertical offset to prevent nameplate overlap
+		var offsetBoost = Config.MaxOffsetScale / BaseScaleDivider;
+		if (Config.MinOffsetScale > Config.MaxOffsetScale) Config.MinOffsetScale = Config.MaxOffsetScale;
+		var offsetScale = Math.Clamp(distScale * offsetBoost, Config.MinOffsetScale, Config.MaxOffsetScale);
+		var scaledOffset = Config.VerticalOffset * offsetScale;
 
 		var width = scale * Config.BarWidth;
 		var height = scale * Config.BarHeight;
 		var x = (float)scr.X - width / 2f;
-		var y = Api.Render.FrameHeight - (float)scr.Y - height - Config.VerticalOffset;
+		var y = Api.Render.FrameHeight - (float)scr.Y - height - scaledOffset;
 
 		var sh = Api.Render.CurrentActiveShader;
 		sh.Uniform("noTexture", 1f);
@@ -184,8 +191,10 @@ public sealed class HealthBarRenderer : IRenderer, IDisposable {
 
 	private Vec3d ProjectOnScreen() {
 		var e = TargetEntity!;
+		// Use SelectionBox for better alignment with nameplates, fallback to CollisionBox
+		var heightRef = e.SelectionBox?.Y2 ?? e.CollisionBox.Y2;
 		var p = new Vec3d(e.Pos.X,
-			e.Pos.Y + e.CollisionBox.Y2,
+			e.Pos.Y + heightRef,
 			e.Pos.Z);
 		p.Add(e.CollisionBox.X2 - e.OriginCollisionBox.X2, 0, 0);
 

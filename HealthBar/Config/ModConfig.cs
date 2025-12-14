@@ -8,13 +8,18 @@ public class ModConfig {
 	public bool TargetOnlyHealthBar = false;
 	public int DisplayRange = 14;
 	public bool ShowOnPlayer = true;
+	public float HorizontalFOV = 60f;
 	public bool ShowHpText = true;
+	public int MaxBarsDisplayed = 7;
+
 	public int BarWidth = 66;
 	public int BarHeight = 7;
-	public int VerticalOffset = 22;
-
 	public float MinScale = 1.0f;
 	public float MaxScale = 8.0f;
+
+	public int VerticalOffset = 22;
+	public float MinOffsetScale = 0.3f;
+	public float MaxOffsetScale = 3.5f;
 
 	public float FadeInSpeed = 0.3f;
 	public float FadeOutSpeed = 0.5f;

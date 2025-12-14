@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "file": "HealthBar.json",
   "settings": [
     {
@@ -52,6 +52,31 @@
       "weight": 1.3
     },
     {
+      "code": "HorizontalFOV",
+      "ingui": "horizontalFOV",
+      "type": "float",
+      "comment": "horizontalFOV-comment",
+      "default": 60.0,
+      "weight": 1.4,
+      "range": {
+        "min": 5.0,
+        "max": 180.0,
+        "step": 5.0
+      }
+    },
+    {
+      "code": "MaxBarsDisplayed",
+      "ingui": "maxBarsDisplayed",
+      "type": "integer",
+      "comment": "maxBarsDisplayed-comment",
+      "default": 7,
+      "weight": 1.5,
+      "range": {
+        "min": 1,
+        "max": 15
+      }
+    },
+    {
       "type": "separator",
       "title": "sizeAndPosition",
       "weight": 2.0
@@ -81,24 +106,12 @@
       }
     },
     {
-      "code": "VerticalOffset",
-      "ingui": "verticalOffset",
-      "type": "integer",
-      "comment": "verticalOffset-comment",
-      "default": 22,
-      "weight": 2.3,
-      "range": {
-        "min": 0,
-        "max": 500
-      }
-    },
-    {
       "code": "MinScale",
       "ingui": "minScale",
       "type": "float",
       "comment": "minScale-comment",
       "default": 0.75,
-      "weight": 2.4,
+      "weight": 2.3,
       "range": {
         "min": 0.25,
         "max": 5.0,
@@ -111,11 +124,49 @@
       "type": "float",
       "comment": "maxScale-comment",
       "default": 8,
-      "weight": 2.5,
+      "weight": 2.4,
       "range": {
         "min": 1.0,
         "max": 20.0,
         "step": 1.0
+      }
+    },
+    {
+      "code": "VerticalOffset",
+      "ingui": "verticalOffset",
+      "type": "integer",
+      "comment": "verticalOffset-comment",
+      "default": 22,
+      "weight": 2.5,
+      "range": {
+        "min": 0,
+        "max": 500
+      }
+    },
+    {
+      "code": "MinOffsetScale",
+      "ingui": "minOffsetScale",
+      "type": "float",
+      "comment": "minOffsetScale-comment",
+      "default": 1.0,
+      "weight": 2.6,
+      "range": {
+        "min": 0.5,
+        "max": 5.0,
+        "step": 0.25
+      }
+    },
+    {
+      "code": "MaxOffsetScale",
+      "ingui": "maxOffsetScale",
+      "type": "float",
+      "comment": "maxOffsetScale-comment",
+      "default": 2.0,
+      "weight": 2.7,
+      "range": {
+        "min": 0.5,
+        "max": 10.0,
+        "step": 0.25
       }
     },
     {
