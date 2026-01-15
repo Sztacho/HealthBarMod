@@ -1,46 +1,53 @@
 ﻿using System;
-using ConfigLib;
-using HealthBar.Behaviors;
+using HealthBar.Client;
 using HealthBar.Config;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
 namespace HealthBar;
-public class ModSystem : Vintagestory.API.Common.ModSystem {
-	public static ILogger Logger { get; private set; }
-	public static ICoreAPI Api { get; private set; }
-	public static event Action SettingsChanged;
 
-	public override void Start(ICoreAPI api) {
-		base.Start(api);
-		api.RegisterEntityBehaviorClass("mobhealthdisplay", typeof(HealthBarBehavior));
+public class ModSystem : Vintagestory.API.Common.ModSystem
+{
+    public static ILogger Logger { get; private set; }
+    public static ICoreAPI Api { get; private set; }
+    private static IConfigProvider Config { get; set; } = null!;
 
-		Api = api;
-		Logger = Mod.Logger;
+    public static event Action SettingsChanged;
 
-		try {
-			ModConfig.Instance = api.LoadModConfig<ModConfig>(ModConfig.ConfigName) ?? new ModConfig();
-			api.StoreModConfig(ModConfig.Instance, ModConfig.ConfigName);
-		} catch (Exception _) { ModConfig.Instance = new ModConfig(); }
+#nullable enable
+    private ConfigProvider? _configProvider;
 
-		if (api.ModLoader.IsModEnabled("configlib")) {
-			SubscribeToConfigChange(api);
-		}
-	}
+    public override void Start(ICoreAPI api)
+    {
+        base.Start(api);
 
-	public override void StartClientSide(ICoreClientAPI api) {
-		api.Event.PlayerEntitySpawn += player => player.Entity.AddBehavior(new HealthBarBehavior(player.Entity));
-	}
+        Api = api;
+        Logger = Mod.Logger;
 
-	private void SubscribeToConfigChange(ICoreAPI api) {
-		ConfigLibModSystem system = api.ModLoader.GetModSystem<ConfigLibModSystem>();
+        _configProvider = new ConfigProvider(api);
+        Config = _configProvider;
+        _configProvider.Changed += OnConfigChanged;
+    }
 
-		system.SettingChanged += (domain, config, setting) => {
-			if (domain != "healthbar")
-				return;
+    private static void OnConfigChanged() => SettingsChanged?.Invoke();
 
-			setting.AssignSettingValue(ModConfig.Instance);
-			SettingsChanged?.Invoke();
-		};
-	}
+    private HealthBarClientSystem? _client;
+
+    public override void StartClientSide(ICoreClientAPI api)
+    {
+        _client = new HealthBarClientSystem(api, Config);
+    }
+
+    public override void Dispose()
+    {
+        _client?.Dispose();
+        _client = null;
+        if (_configProvider != null)
+        {
+            _configProvider.Changed -= OnConfigChanged;
+            _configProvider = null;
+        }
+
+        base.Dispose();
+    }
 }

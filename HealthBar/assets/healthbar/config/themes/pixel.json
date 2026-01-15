@@ -1,0 +1,32 @@
+{
+  "texture": "textures/gui/healthbar_pixel_tiles.png",
+
+  "tile": 32,
+  "texW": 384,
+  "texH": 32,
+
+  "barStartOffset": 24,
+
+  "innerPad": 6,
+  "minMidTiles": 2,
+  "maxMidTiles": 16,
+  "uvInsetPx": 0.5,
+
+  "tiles": {
+    "frameLeftOuter": 0,
+    "frameLeftInner": 1,
+    "frameMid": 2,
+    "frameRightInner": 3,
+    "frameRightOuter": 4,
+
+    "bgLeftOuter": 5,
+    "bgLeftInner": 6,
+    "bgMid": 7,
+    "bgRightInner": 8,
+    "bgRightOuter": 9,
+
+    "fill": 10,
+    "heart": 11,
+    "hasHeart": false
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "version": 14,
+  "version": 15,
   "file": "HealthBar.json",
   "settings": [
     {
@@ -74,6 +74,38 @@
       "range": {
         "min": 1,
         "max": 15
+      }
+    },
+    {
+      "code": "MaxTargetBarsDisplayed",
+      "ingui": "max-target-bars",
+      "type": "integer",
+      "comment": "max-target-bars-comment",
+      "default": 1,
+      "weight": 1.61,
+      "range": {
+        "min": 1,
+        "max": 50
+      }
+    },
+    {
+      "code": "AlwaysShowTargetInAround",
+      "ingui": "always-show-target",
+      "type": "boolean",
+      "comment": "always-show-target-comment",
+      "default": true,
+      "weight": 1.62
+    },
+    {
+      "code": "Theme",
+      "ingui": "theme",
+      "type": "integer",
+      "comment": "theme-comment",
+      "default": "Basic",
+      "weight": 1.63,
+      "mapping": {
+        "Basic": 0,
+        "Pixel": 1
       }
     },
     {

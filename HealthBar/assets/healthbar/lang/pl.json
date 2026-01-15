@@ -1,27 +1,82 @@
-﻿{
+{
   "general": "Ogólne",
   "sizeAndPosition": "Rozmiar i pozycja",
   "animations": "Animacje",
   "hpThresholds": "Progi HP",
   "colors": "Kolory",
 
-  "enabled": "Włączone",
-  "showonplayer": "Pokaż na graczu",
-  "showhptext": "Pokaż wartość HP",
+  "enabled": "Włącz",
+  "enabled-comment": "Włącza lub wyłącza wyświetlanie paska zdrowia.",
+
+  "targetOnlyHealthBar": "Pasek tylko dla celu",
+  "targetOnlyHealthBar-comment": "Pokazuje pasek zdrowia wyłącznie dla aktualnie wybranego celu. Ma ograniczony zasięg i nie jest zależny od „Zasięgu wyświetlania”.",
+
+  "displayRange": "Zasięg wyświetlania",
+  "displayRange-comment": "Jak daleko mogą być istoty, aby pasek zdrowia był widoczny. Zbyt wysokie wartości mogą powodować lagi.",
+
+  "showonplayer": "Pokazuj na graczach",
+  "showonplayer-comment": "Wyświetla pasek zdrowia nad graczami.",
+
+  "showhptext": "Pokazuj wartość HP",
+  "showhptext-comment": "Wyświetla liczbową wartość HP wewnątrz paska.",
+
+  "horizontalFOV": "Poziome pole widzenia (FOV)",
+  "horizontalFOV-comment": "Kąt poziomego pola widzenia w stopniach dla odrzucania poza frustum. Paski zdrowia pokażą się tylko dla obiektów mieszczących się w tym kącie względem kierunku kamery.",
+
+  "maxBarsDisplayed": "Maksymalna liczba pasków",
+  "maxBarsDisplayed-comment": "Ogranicza liczbę wyświetlanych pasków. Użyj, jeśli masz spadki FPS przy patrzeniu na dużą grupę istot.",
 
   "barwidth": "Szerokość paska",
-  "barheight": "Wysokość paska",
-  "verticalOffset": "Pionowe przesunięcie",
+  "barwidth-comment": "Szerokość paska zdrowia w pikselach.",
 
-  "fadeinSpeed": "Prędkość pojawiania (s)",
-  "fadeoutSpeed": "Prędkość zanikania (s)",
+  "barheight": "Wysokość paska",
+  "barheight-comment": "Wysokość paska zdrowia w pikselach.",
+
+  "verticalOffset": "Przesunięcie w pionie",
+  "verticalOffset-comment": "Pionowe przesunięcie paska zdrowia w pikselach.",
+
+  "minScale": "Minimalna skala",
+  "minScale-comment": "Minimalny mnożnik rozmiaru pasków zdrowia na dużej odległości.",
+
+  "maxScale": "Maksymalna skala",
+  "maxScale-comment": "Maksymalny mnożnik rozmiaru pasków zdrowia z bardzo bliska.",
+
+  "minOffsetScale": "Minimalna skala przesunięcia",
+  "minOffsetScale-comment": "Minimalny mnożnik pionowego przesunięcia dla dalekich obiektów. Pomaga uniknąć nakładania na napisy/nazwy.",
+
+  "maxOffsetScale": "Maksymalna skala przesunięcia",
+  "maxOffsetScale-comment": "Maksymalny mnożnik pionowego przesunięcia dla bliskich obiektów. Pomaga uniknąć nakładania na napisy/nazwy.",
+
+  "fadeinSpeed": "Czas pojawiania (s)",
+  "fadeinSpeed-comment": "Czas w sekundach, po którym pasek jest w pełni widoczny.",
+
+  "fadeoutSpeed": "Czas zanikania (s)",
+  "fadeoutSpeed-comment": "Czas w sekundach, po którym pasek całkowicie znika.",
 
   "midHp-threshold": "Próg średniego HP",
+  "midHp-threshold-comment": "Poniżej tego procentu pasek używa koloru dla średniego HP.",
+
   "lowHp-threshold": "Próg niskiego HP",
+  "lowHp-threshold-comment": "Poniżej tego procentu pasek używa koloru dla niskiego HP.",
 
   "midHp-color": "Kolor średniego HP",
+  "midHp-color-comment": "Kolor paska, gdy HP jest pomiędzy progami niskiego i średniego HP.",
+
   "lowHp-color": "Kolor niskiego HP",
+  "lowHp-color-comment": "Kolor paska, gdy HP jest poniżej progu niskiego HP.",
 
   "fullHp-color": "Kolor pełnego HP",
-  "frame-color": "Kolor ramki"
+  "fullHp-color-comment": "Kolor paska przy pełnym zdrowiu.",
+
+  "frame-color": "Kolor ramki",
+  "frame-color-comment": "Kolor ramki/obramowania paska zdrowia.",
+
+  "max-target-bars": "Maks. pasków (cel)",
+  "max-target-bars-comment": "Maksymalna liczba pasków zdrowia w trybie „tylko dla celu” (1 = tylko zaznaczona istota).",
+
+  "always-show-target": "Zawsze pokazuj cel w trybie „wokół”",
+  "always-show-target-comment": "Jeśli włączone, aktualny cel jest zawsze wyświetlany w trybie „wokół” i nie wlicza się do limitu.",
+
+  "theme": "Motyw (Theme)",
+  "theme-comment": "Wybierz motyw: 'basic' lub 'pixel'."
 }
