@@ -10,7 +10,7 @@ public class ModSystem : Vintagestory.API.Common.ModSystem
 {
     public static ILogger Logger { get; private set; }
     public static ICoreAPI Api { get; private set; }
-    private static IConfigProvider Config { get; set; } = null!;
+    private static IConfigProvider Config { get; set; } = NullConfigProvider.Instance;
 
     public static event Action SettingsChanged;
 
@@ -24,9 +24,18 @@ public class ModSystem : Vintagestory.API.Common.ModSystem
         Api = api;
         Logger = Mod.Logger;
 
-        _configProvider = new ConfigProvider(api);
-        Config = _configProvider;
-        _configProvider.Changed += OnConfigChanged;
+        try
+        {
+            _configProvider = new ConfigProvider(api);
+            Config = _configProvider;
+            _configProvider.Changed += OnConfigChanged;
+        }
+        catch (Exception e)
+        {
+            Logger?.Warning($"[HealthBar] Failed to initialize config provider, using defaults: {e}");
+            _configProvider = null;
+            Config = NullConfigProvider.Instance;
+        }
     }
 
     private static void OnConfigChanged() => SettingsChanged?.Invoke();
@@ -35,7 +44,9 @@ public class ModSystem : Vintagestory.API.Common.ModSystem
 
     public override void StartClientSide(ICoreClientAPI api)
     {
-        _client = new HealthBarClientSystem(api, Config);
+        var config = (IConfigProvider?)_configProvider ?? NullConfigProvider.Instance;
+        Config = config;
+        _client = new HealthBarClientSystem(api, config);
     }
 
     public override void Dispose()

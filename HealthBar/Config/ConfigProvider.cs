@@ -37,6 +37,7 @@ public sealed class ConfigProvider : IConfigProvider
 
     public void NotifyChanged()
     {
+        ModConfig.Instance ??= new ModConfig();
         Snapshot = new ModConfigSnapshot(ModConfig.Instance);
         Changed?.Invoke();
     }
@@ -45,12 +46,26 @@ public sealed class ConfigProvider : IConfigProvider
     {
         if (!_api.ModLoader.IsModEnabled("configlib")) return;
 
-        var system = _api.ModLoader.GetModSystem<ConfigLibModSystem>();
-        system.SettingChanged += (domain, config, setting) =>
+        try
         {
-            if (domain != "healthbar") return;
-            setting.AssignSettingValue(ModConfig.Instance);
-            NotifyChanged();
-        };
+            var system = _api.ModLoader.GetModSystem<ConfigLibModSystem>();
+            if (system == null)
+            {
+                ModSystem.Logger?.Warning("[HealthBar] configlib is enabled but its mod system is unavailable. Falling back to local JSON config only.");
+                return;
+            }
+
+            system.SettingChanged += (domain, config, setting) =>
+            {
+                if (domain != "healthbar") return;
+                ModConfig.Instance ??= new ModConfig();
+                setting.AssignSettingValue(ModConfig.Instance);
+                NotifyChanged();
+            };
+        }
+        catch (Exception e)
+        {
+            ModSystem.Logger?.Warning($"[HealthBar] Failed to hook configlib, using local JSON config fallback: {e}");
+        }
     }
 }
